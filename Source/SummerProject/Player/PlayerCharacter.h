@@ -6,6 +6,12 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+class ADefaultPlayerController;
+class UInputAction;
+class UInputMappingContext;
+struct FInputActionValue;
+class APlayerCharacter;
+
 UCLASS()
 class SUMMERPROJECT_API APlayerCharacter : public ACharacter
 {
@@ -31,10 +37,12 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* Camera;
+	
+	//input hande function
+	void HandleMove(const FInputActionValue& IAVal);
+	void HandleLook(const FInputActionValue& IAVal);
+	void HandleJump();
+	void HandleRun();
 
-public:
-
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input")
-	//UInputAction* MoveForward = nullptr;
-
+	ADefaultPlayerController* DefaultPlayerController;
 };

@@ -19,6 +19,8 @@ class SUMMERPROJECT_API ADefaultPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	virtual void SetupInputComponent() override;;
+	
 	//Input mapping context
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input|Character Movement")
 	TObjectPtr<UInputMappingContext> InputMappingContext = nullptr;
@@ -39,16 +41,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input|Character Movement")
 	TObjectPtr<UInputAction> ActionRun = nullptr;
 	
-
-protected:
-	virtual void OnPossess(APawn* aPawn) override;
-	virtual void OnUnPossess() override;
-
+	
 	//input hande function
 	void HandleMove(const FInputActionValue& IAVal);
 	void HandleLook(const FInputActionValue& IAVal);
 	void HandleJump();
 	void HandleRun();
+	
+protected:
+	virtual void OnPossess(APawn* aPawn) override;
+	virtual void OnUnPossess() override;
+
+	
 	
 	
 private:
