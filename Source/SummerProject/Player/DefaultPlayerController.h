@@ -11,7 +11,7 @@ class UInputAction;
 class UInputMappingContext;
 struct FInputActionValue;
 class APlayerCharacter;
-
+class UEnhancedInputLocalPlayerSubsystem;
 
 UCLASS(Abstract)
 class SUMMERPROJECT_API ADefaultPlayerController : public APlayerController
@@ -47,21 +47,19 @@ public:
 	void HandleLook(const FInputActionValue& IAVal);
 	void HandleJump();
 	void HandleRun();
-	
+
+	UPROPERTY()
+	UEnhancedInputComponent* EnhancedInputComponent = nullptr;
+
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = nullptr;
 protected:
 	virtual void OnPossess(APawn* aPawn) override;
 	virtual void OnUnPossess() override;
 
-	
-	
+	virtual void BeginPlay() override;
 	
 private:
-	UPROPERTY()
-	UEnhancedInputComponent* EnhancedInputComponent = nullptr;
-
 	//ref to possing Pawn
 	UPROPERTY()
-	APlayerCharacter* PlayerCharacter = nullptr;
-
-	
+	APlayerCharacter* Avatar = nullptr;
 };

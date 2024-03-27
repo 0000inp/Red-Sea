@@ -32,17 +32,15 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY()
+	UInputComponent* CharacterInputComponent = nullptr;
+	UPROPERTY()
+	ULocalPlayer* LocalPlayer = nullptr;
 	
 protected:
 
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* Camera;
 	
-	//input hande function
-	void HandleMove(const FInputActionValue& IAVal);
-	void HandleLook(const FInputActionValue& IAVal);
-	void HandleJump();
-	void HandleRun();
-
-	ADefaultPlayerController* DefaultPlayerController;
 };

@@ -9,52 +9,47 @@
 void ADefaultPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
+	
+}
+
+void ADefaultPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 
 void ADefaultPlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
-	
-	PlayerCharacter = Cast<APlayerCharacter>(aPawn);
-	checkf(PlayerCharacter, TEXT("Need to possess APlayerCharacter type"));
-	
-	UInputComponent* IC = InputComponent;
-	ULocalPlayer* player = GetLocalPlayer();
-	
-	/**
-	//store ref to player char
-	PlayerCharacter = Cast<APlayerCharacter>(aPawn);
-	checkf(PlayerCharacter, TEXT("Need to possess APlayerCharacter type"));
-	
-	SetupInputComponent();
+
+	//store ref to player char if possesing pawn in player character
+	Avatar = Cast<APlayerCharacter>(aPawn);
+	checkf(Avatar, TEXT("Need to possess APlayerCharacter type"));
 	
 	//get ref to EnhancedInputComponent
-	EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
-	
-	checkf(EnhancedInputComponent, TEXT("Unable to get ref to EnhancedInputComponent"));	
+	EnhancedInputComponent = Cast<UEnhancedInputComponent>(Avatar->CharacterInputComponent);
+	checkf(EnhancedInputComponent, TEXT("Unable to get ref to EnhancedInputComponent"));
 	
 	//get local player subsystem
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-
+	InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Avatar->LocalPlayer);
 	checkf(InputSubsystem, TEXT("Unable to get ref to EnhancedInputLocalPlayerSubsystem"));
-
 	checkf(InputMappingContext, TEXT("InputMappingContext is not assigned"));
 	InputSubsystem->ClearAllMappings();
 	InputSubsystem->AddMappingContext(InputMappingContext, 0);
+	
 	
 	//bind input action
 	if(ActionMove){EnhancedInputComponent->BindAction(ActionMove, ETriggerEvent::Triggered, this, &ADefaultPlayerController::HandleMove);}
 	if(ActionLook){EnhancedInputComponent->BindAction(ActionLook, ETriggerEvent::Triggered, this, &ADefaultPlayerController::HandleLook);}
 	if(ActionJump){EnhancedInputComponent->BindAction(ActionJump, ETriggerEvent::Triggered, this, &ADefaultPlayerController::HandleJump);}
 	if(ActionRun){EnhancedInputComponent->BindAction(ActionRun, ETriggerEvent::Triggered, this, &ADefaultPlayerController::HandleRun);}
-	**/
+	
 }
 
 void ADefaultPlayerController::OnUnPossess()
 {
 	//Unbind all Actions
-	//EnhancedInputComponent->ClearActionBindings();
+	EnhancedInputComponent->ClearActionBindings();
 	
 	Super::OnUnPossess();
 }
@@ -62,8 +57,8 @@ void ADefaultPlayerController::OnUnPossess()
 void ADefaultPlayerController::HandleMove(const FInputActionValue& IAVal)
 {
 	const FVector2d MovementVector = IAVal.Get<FVector2d>();
-	PlayerCharacter->AddMovementInput(PlayerCharacter->GetActorForwardVector(), MovementVector.Y);
-	PlayerCharacter->AddMovementInput(PlayerCharacter->GetActorRightVector(), MovementVector.X);
+	Avatar->AddMovementInput(Avatar->GetActorForwardVector(), MovementVector.Y);
+	Avatar->AddMovementInput(Avatar->GetActorRightVector(), MovementVector.X);
 }
 
 void ADefaultPlayerController::HandleLook(const FInputActionValue& IAVal)
@@ -75,7 +70,7 @@ void ADefaultPlayerController::HandleLook(const FInputActionValue& IAVal)
 
 void ADefaultPlayerController::HandleJump()
 {
-	PlayerCharacter->Jump();
+	Avatar->Jump();
 }
 
 void ADefaultPlayerController::HandleRun()
