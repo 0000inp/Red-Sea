@@ -40,6 +40,9 @@ public:
 	//IA Run
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input|Character Movement")
 	TObjectPtr<UInputAction> ActionRun = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input|Character Interaction")
+	TObjectPtr<UInputAction> ActionUse = nullptr;
 	
 	
 	//input hande function
@@ -59,7 +62,16 @@ protected:
 	virtual void BeginPlay() override;
 	
 private:
+<<<<<<< HEAD
 	//ref to possing Pawn
 	UPROPERTY()
 	APlayerCharacter* Avatar = nullptr;
+=======
+
+	//ref to possing Pawn
+	UPROPERTY()
+	TObjectPtr<APlayerCharacter> PlayerCharacter = nullptr;
+
+	
+>>>>>>> recover
 };

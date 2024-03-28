@@ -21,6 +21,7 @@ void ADefaultPlayerController::BeginPlay()
 void ADefaultPlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
+<<<<<<< HEAD
 
 	//store ref to player char if possesing pawn in player character
 	Avatar = Cast<APlayerCharacter>(aPawn);
@@ -36,6 +37,13 @@ void ADefaultPlayerController::OnPossess(APawn* aPawn)
 	checkf(InputMappingContext, TEXT("InputMappingContext is not assigned"));
 	InputSubsystem->ClearAllMappings();
 	InputSubsystem->AddMappingContext(InputMappingContext, 0);
+=======
+	
+	PlayerCharacter = Cast<APlayerCharacter>(aPawn);
+	checkf(PlayerCharacter, TEXT("Need to possess APlayerCharacter type"));
+	
+	/**
+>>>>>>> recover
 	
 	
 	//bind input action
@@ -77,6 +85,7 @@ void ADefaultPlayerController::HandleRun()
 {
 	printf("RUN");
 }
+
 
 
 

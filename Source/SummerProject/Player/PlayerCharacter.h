@@ -5,10 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
-
+class UCameraComponent;
 class ADefaultPlayerController;
-class UInputAction;
-class UInputMappingContext;
 struct FInputActionValue;
 class APlayerCharacter;
 
@@ -38,9 +36,27 @@ public:
 	UPROPERTY()
 	ULocalPlayer* LocalPlayer = nullptr;
 	
+	
+	void InteractionLineTrace(int16 TraceDistance);
+	
 protected:
 
 	UPROPERTY(EditAnywhere)
-	class UCameraComponent* Camera;
+	UCameraComponent* Camera;
 	
+<<<<<<< HEAD
+=======
+	//input hande function
+	void HandleMove(const FInputActionValue& IAVal);
+	void HandleLook(const FInputActionValue& IAVal);
+	void HandleJump();
+	void HandleRun();
+	void HandleUse();
+
+	UPROPERTY()
+	ADefaultPlayerController* DefaultPlayerController;
+
+	UPROPERTY(EditAnywhere)
+	int16 InteractionRange = 250.0f;
+>>>>>>> recover
 };
