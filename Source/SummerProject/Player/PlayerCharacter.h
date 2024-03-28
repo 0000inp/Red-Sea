@@ -44,8 +44,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UCameraComponent* Camera;
 	
-<<<<<<< HEAD
-=======
 	//input hande function
 	void HandleMove(const FInputActionValue& IAVal);
 	void HandleLook(const FInputActionValue& IAVal);
@@ -58,5 +56,4 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	int16 InteractionRange = 250.0f;
->>>>>>> recover
 };

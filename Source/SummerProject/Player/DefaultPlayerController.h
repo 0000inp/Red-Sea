@@ -43,13 +43,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input|Character Interaction")
 	TObjectPtr<UInputAction> ActionUse = nullptr;
-	
-	
-	//input hande function
-	void HandleMove(const FInputActionValue& IAVal);
-	void HandleLook(const FInputActionValue& IAVal);
-	void HandleJump();
-	void HandleRun();
 
 	UPROPERTY()
 	UEnhancedInputComponent* EnhancedInputComponent = nullptr;
@@ -62,16 +55,13 @@ protected:
 	virtual void BeginPlay() override;
 	
 private:
-<<<<<<< HEAD
+	
 	//ref to possing Pawn
 	UPROPERTY()
 	APlayerCharacter* Avatar = nullptr;
-=======
-
+	
 	//ref to possing Pawn
 	UPROPERTY()
 	TObjectPtr<APlayerCharacter> PlayerCharacter = nullptr;
-
 	
->>>>>>> recover
 };

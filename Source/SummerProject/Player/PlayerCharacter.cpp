@@ -53,21 +53,17 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	
-<<<<<<< HEAD
 	CharacterInputComponent = PlayerInputComponent;
 	LocalPlayer = Cast<ADefaultPlayerController>(Controller)->GetLocalPlayer();
 	
-}
-=======
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	DefaultPlayerController = Cast<ADefaultPlayerController>(Controller);
 	
 	check(EnhancedInputComponent && DefaultPlayerController);
 	BIND_ACTION_IF_VALID(ActionMove, ETriggerEvent::Triggered, &APlayerCharacter::HandleMove);
-	//if(DefaultPlayerController->ActionMove){EnhancedInputComponent->BindAction(DefaultPlayerController->ActionMove, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleMove);}
-	if(DefaultPlayerController->ActionLook){EnhancedInputComponent->BindAction(DefaultPlayerController->ActionLook, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleLook);}
-	if(DefaultPlayerController->ActionJump){EnhancedInputComponent->BindAction(DefaultPlayerController->ActionJump, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleJump);}
-	if(DefaultPlayerController->ActionRun){EnhancedInputComponent->BindAction(DefaultPlayerController->ActionRun, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleRun);}
+	BIND_ACTION_IF_VALID(ActionLook, ETriggerEvent::Triggered, &APlayerCharacter::HandleLook);
+	BIND_ACTION_IF_VALID(ActionJump, ETriggerEvent::Triggered, &APlayerCharacter::HandleJump);
+	BIND_ACTION_IF_VALID(ActionRun, ETriggerEvent::Triggered, &APlayerCharacter::HandleRun);
 	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Triggered, &APlayerCharacter::HandleUse);
 	
 	ULocalPlayer* LocalPlayer = DefaultPlayerController->GetLocalPlayer();
@@ -126,4 +122,3 @@ void APlayerCharacter::HandleUse()
 	InteractionLineTrace(InteractionRange);
 }
 
->>>>>>> recover
