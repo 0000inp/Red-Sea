@@ -40,6 +40,9 @@ public:
 	//IA Run
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input|Character Movement")
 	TObjectPtr<UInputAction> ActionRun = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input|Character Interaction")
+	TObjectPtr<UInputAction> ActionUse = nullptr;
 	
 	
 	//input hande function
@@ -56,12 +59,10 @@ protected:
 	
 	
 private:
-	UPROPERTY()
-	UEnhancedInputComponent* EnhancedInputComponent = nullptr;
 
 	//ref to possing Pawn
 	UPROPERTY()
-	APlayerCharacter* PlayerCharacter = nullptr;
+	TObjectPtr<APlayerCharacter> PlayerCharacter = nullptr;
 
 	
 };

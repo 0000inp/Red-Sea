@@ -5,10 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
-
+class UCameraComponent;
 class ADefaultPlayerController;
-class UInputAction;
-class UInputMappingContext;
 struct FInputActionValue;
 class APlayerCharacter;
 
@@ -33,16 +31,24 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
+	
+	void InteractionLineTrace(int16 TraceDistance);
+	
 protected:
 
 	UPROPERTY(EditAnywhere)
-	class UCameraComponent* Camera;
+	UCameraComponent* Camera;
 	
 	//input hande function
 	void HandleMove(const FInputActionValue& IAVal);
 	void HandleLook(const FInputActionValue& IAVal);
 	void HandleJump();
 	void HandleRun();
+	void HandleUse();
 
+	UPROPERTY()
 	ADefaultPlayerController* DefaultPlayerController;
+
+	UPROPERTY(EditAnywhere)
+	int16 InteractionRange = 250.0f;
 };

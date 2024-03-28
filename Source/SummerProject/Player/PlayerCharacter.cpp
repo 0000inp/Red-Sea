@@ -9,6 +9,17 @@
 #include "DefaultPlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "SummerProject/ActorComponents/InteractableComponent/InteractionComponent.h"
+
+class UInteractionComponent;
+
+#define BIND_ACTION_IF_VALID(Action, TriggerEvent, Callback) \
+	do { \
+		if ((DefaultPlayerController) && (DefaultPlayerController)->Action) { \
+			EnhancedInputComponent->BindAction((DefaultPlayerController)->Action, TriggerEvent, this, Callback); \
+		} \
+	} while (0)
+
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -41,16 +52,18 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	DefaultPlayerController = Cast<ADefaultPlayerController>(Controller);
-
+	
 	check(EnhancedInputComponent && DefaultPlayerController);
-	if(DefaultPlayerController->ActionMove){EnhancedInputComponent->BindAction(DefaultPlayerController->ActionMove, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleMove);}
+	BIND_ACTION_IF_VALID(ActionMove, ETriggerEvent::Triggered, &APlayerCharacter::HandleMove);
+	//if(DefaultPlayerController->ActionMove){EnhancedInputComponent->BindAction(DefaultPlayerController->ActionMove, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleMove);}
 	if(DefaultPlayerController->ActionLook){EnhancedInputComponent->BindAction(DefaultPlayerController->ActionLook, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleLook);}
 	if(DefaultPlayerController->ActionJump){EnhancedInputComponent->BindAction(DefaultPlayerController->ActionJump, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleJump);}
 	if(DefaultPlayerController->ActionRun){EnhancedInputComponent->BindAction(DefaultPlayerController->ActionRun, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleRun);}
-
+	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Triggered, &APlayerCharacter::HandleUse);
+	
 	ULocalPlayer* LocalPlayer = DefaultPlayerController->GetLocalPlayer();
 	check(LocalPlayer);
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
@@ -59,12 +72,30 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputSubsystem->AddMappingContext(DefaultPlayerController->InputMappingContext, 0);
 }
 
+void APlayerCharacter::InteractionLineTrace(int16 TraceDistance)
+{
+	FHitResult Hit;
+	FVector TraceStart = Camera->GetComponentLocation();
+	FVector TraceEnd = TraceStart + (Camera->GetForwardVector() * TraceDistance);
+	if(GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_GameTraceChannel1))
+	{
+		if(Hit.GetActor()->IsValidLowLevelFast())
+		{
+			TInlineComponentArray<UInteractionComponent*> Components;
+			Hit.GetActor()->GetComponents(Components);
+			for(UInteractionComponent* Component : Components)
+			{
+				Component->Used(this);
+			}
+		}
+	}
+}
 
 void APlayerCharacter::HandleMove(const FInputActionValue& IAVal)
 {
 	const FVector2d MovementVector = IAVal.Get<FVector2d>();
-	this->AddMovementInput(GetActorForwardVector(), MovementVector.Y);
-	this->AddMovementInput(GetActorRightVector(), MovementVector.X);
+	AddMovementInput(GetActorForwardVector(), MovementVector.Y);
+	AddMovementInput(GetActorRightVector(), MovementVector.X);
 }
 
 void APlayerCharacter::HandleLook(const FInputActionValue& IAVal)
@@ -82,5 +113,10 @@ void APlayerCharacter::HandleJump()
 void APlayerCharacter::HandleRun()
 {
 	printf("RUN");
+}
+
+void APlayerCharacter::HandleUse()
+{
+	InteractionLineTrace(InteractionRange);
 }
 
