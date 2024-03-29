@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/MovementComponent.h"
 #include "PlayerCharacter.generated.h"
+
+
+class UCharacterMovementComponent;
 class UCameraComponent;
 class ADefaultPlayerController;
 struct FInputActionValue;
@@ -32,12 +36,13 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY()
-	UInputComponent* CharacterInputComponent = nullptr;
-	UPROPERTY()
-	ULocalPlayer* LocalPlayer = nullptr;
-	
+	UEnhancedInputComponent* EnhancedInputComponent = nullptr;
+	// UPROPERTY()
+	// ULocalPlayer* LocalPlayer = nullptr;
 	
 	void InteractionLineTrace(int16 TraceDistance);
+
+	
 	
 protected:
 
@@ -51,9 +56,14 @@ protected:
 	void HandleRun();
 	void HandleUse();
 
+	
+	
 	UPROPERTY()
-	ADefaultPlayerController* DefaultPlayerController;
-
+	TObjectPtr<UCharacterMovementComponent> MovementComponent = nullptr;
+	
+	UPROPERTY()
+	TObjectPtr<ADefaultPlayerController> DefaultPlayerController = nullptr;
+	
 	UPROPERTY(EditAnywhere)
 	int16 InteractionRange = 250.0f;
 };

@@ -9,7 +9,8 @@
 void ADefaultPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-	
+	// UE_LOG(LogTemp, Warning, TEXT("-------From %s-------"),*GetName())
+	// if(InputComponent){UE_LOG(LogTemp, Warning, TEXT("InputComponent = %s-------"),*InputComponent->GetName())}
 }
 
 void ADefaultPlayerController::BeginPlay()
@@ -31,7 +32,7 @@ void ADefaultPlayerController::OnPossess(APawn* aPawn)
 void ADefaultPlayerController::OnUnPossess()
 {
 	//Unbind all Actions
-	EnhancedInputComponent->ClearActionBindings();
+	//Avatar->EnhancedInputComponent->ClearActionBindings();
 	
 	Super::OnUnPossess();
 }

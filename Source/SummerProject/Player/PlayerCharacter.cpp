@@ -9,6 +9,7 @@
 #include "DefaultPlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "SummerProject/ActorComponents/InteractableComponent/InteractionComponent.h"
 
 class UInteractionComponent;
@@ -37,7 +38,9 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	MovementComponent = Cast<UCharacterMovementComponent>(GetMovementComponent());
 	
+	UE_LOG(LogTemp,Warning,TEXT("---------%s-------->>>>> is LocallyControlled = %hs"),*GetName(), IsLocallyControlled() ? "true" : "false")
 }
 
 
@@ -53,25 +56,31 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	
-	CharacterInputComponent = PlayerInputComponent;
-	LocalPlayer = Cast<ADefaultPlayerController>(Controller)->GetLocalPlayer();
-	
-	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	DefaultPlayerController = Cast<ADefaultPlayerController>(Controller);
-	
-	check(EnhancedInputComponent && DefaultPlayerController);
-	BIND_ACTION_IF_VALID(ActionMove, ETriggerEvent::Triggered, &APlayerCharacter::HandleMove);
-	BIND_ACTION_IF_VALID(ActionLook, ETriggerEvent::Triggered, &APlayerCharacter::HandleLook);
-	BIND_ACTION_IF_VALID(ActionJump, ETriggerEvent::Triggered, &APlayerCharacter::HandleJump);
-	BIND_ACTION_IF_VALID(ActionRun, ETriggerEvent::Triggered, &APlayerCharacter::HandleRun);
-	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Triggered, &APlayerCharacter::HandleUse);
-	
+
 	ULocalPlayer* LocalPlayer = DefaultPlayerController->GetLocalPlayer();
 	check(LocalPlayer);
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
 	check(InputSubsystem);
 	InputSubsystem->ClearAllMappings();
 	InputSubsystem->AddMappingContext(DefaultPlayerController->InputMappingContext, 0);
+	
+	check(EnhancedInputComponent && DefaultPlayerController);
+	
+	BIND_ACTION_IF_VALID(ActionMove, ETriggerEvent::Triggered, &APlayerCharacter::HandleMove);
+	BIND_ACTION_IF_VALID(ActionLook, ETriggerEvent::Triggered, &APlayerCharacter::HandleLook);
+	BIND_ACTION_IF_VALID(ActionJump, ETriggerEvent::Triggered, &APlayerCharacter::HandleJump);
+	BIND_ACTION_IF_VALID(ActionRun, ETriggerEvent::Triggered, &APlayerCharacter::HandleRun);
+	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Triggered, &APlayerCharacter::HandleUse);
+	
+	
+	//--debug
+	UE_LOG(LogTemp, Warning, TEXT("-------From %s-------"),*GetName())
+	if(DefaultPlayerController){UE_LOG(LogTemp, Warning, TEXT("Controller = %s"), *DefaultPlayerController->GetName())} else{UE_LOG(LogTemp, Warning, TEXT("No Controller"))}
+	// if(DefaultPlayerController->InputComponent){UE_LOG(LogTemp, Warning, TEXT("InputComponent = %s"), *PlayerInputComponent->GetName())} else{UE_LOG(LogTemp, Warning, TEXT("No InputComponent"))}
+	// if(LocalPlayer){UE_LOG(LogTemp, Warning, TEXT("Player = %s"), *LocalPlayer->GetName())} else{UE_LOG(LogTemp, Warning, TEXT("No LocalPlayer"))}
+	// UE_LOG(LogTemp, Warning, TEXT("--------------"))
 }
 
 void APlayerCharacter::InteractionLineTrace(int16 TraceDistance)
