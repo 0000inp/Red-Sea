@@ -8,6 +8,7 @@
 #include "PlayerCharacter.generated.h"
 
 
+class UInteractionComponent;
 class UCharacterMovementComponent;
 class UCameraComponent;
 class ADefaultPlayerController;
@@ -42,7 +43,8 @@ public:
 	
 	void InteractionLineTrace(int16 TraceDistance);
 
-	
+	UFUNCTION(Server, Reliable)
+	void Server_UseInteractable(UInteractionComponent* Component);
 	
 protected:
 

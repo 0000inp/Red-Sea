@@ -17,6 +17,13 @@ public class SummerProject : ModuleRules
 			"EnhancedInput"
 		});
 
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"OnlineSubsystem",
+			"OnlineSubsystemNull",
+			"OnlineSubsystemSteam"
+		});
+
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
 		// Uncomment if you are using Slate UI

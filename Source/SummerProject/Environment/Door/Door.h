@@ -27,14 +27,17 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Door Component");
 	TObjectPtr<UStaticMeshComponent> DoorFrame = nullptr;
-
-	
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Door Component");
 	TObjectPtr<AActor> DoorHinge = nullptr;
 	
 	UPROPERTY(EditAnywhere, Category = "Actor Component|Interaction");
 	TObjectPtr<UInteractionComponent> InteractionComponent = nullptr;
+
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	
 	
 protected:
 	// Called when the game starts or when spawned
@@ -42,7 +45,19 @@ protected:
 	
 	UFUNCTION()
 	void OnUsed(APawn* Pawn);
+	
+	UPROPERTY(ReplicatedUsing = OnRep_DoorToggled)
+    bool isOpen = false;
+    
+    UFUNCTION()
+	void OnRep_DoorToggled();
+	
+	void OpenDoor();
+	void CloseDoor();
 
+	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category="Target")
+	class UMaterialInstanceDynamic* MeshMID;
+	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

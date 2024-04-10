@@ -4,7 +4,7 @@
 #include "Door.h"
 
 #include "SummerProject/ActorComponents/InteractableComponent/InteractionComponent.h"
-
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ADoor::ADoor()
@@ -33,6 +33,8 @@ void ADoor::BeginPlay()
 {
 	Super::BeginPlay();
 	InteractionComponent->OnUsed.AddDynamic(this, &ADoor::OnUsed);
+	
+	MeshMID = DoorPanel->CreateDynamicMaterialInstance(0);
 }
 
 // Called every frame
@@ -43,7 +45,35 @@ void ADoor::Tick(float DeltaTime)
 
 void ADoor::OnUsed(APawn* Pawn)
 {
-	printf("Used door");
+	if(HasAuthority())
+	{
+		isOpen = !isOpen;
+		OnRep_DoorToggled();
+	}
+}
+
+void ADoor::OnRep_DoorToggled()
+{
+	if(isOpen){OpenDoor();}
+	else{CloseDoor();}
+}
+
+void ADoor::OpenDoor()
+{
+	DoorPanel->AddWorldOffset(FVector::UpVector * 20);
+}
+
+void ADoor::CloseDoor()
+{
+	DoorPanel->AddWorldOffset(FVector::UpVector * -20);
+}
+
+
+void ADoor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(ADoor, isOpen)
 }
 
 

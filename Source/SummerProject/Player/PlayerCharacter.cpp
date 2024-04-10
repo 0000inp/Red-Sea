@@ -72,7 +72,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	BIND_ACTION_IF_VALID(ActionLook, ETriggerEvent::Triggered, &APlayerCharacter::HandleLook);
 	BIND_ACTION_IF_VALID(ActionJump, ETriggerEvent::Triggered, &APlayerCharacter::HandleJump);
 	BIND_ACTION_IF_VALID(ActionRun, ETriggerEvent::Triggered, &APlayerCharacter::HandleRun);
-	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Triggered, &APlayerCharacter::HandleUse);
+	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Started, &APlayerCharacter::HandleUse);
 	
 	
 	//--debug
@@ -96,10 +96,20 @@ void APlayerCharacter::InteractionLineTrace(int16 TraceDistance)
 			Hit.GetActor()->GetComponents(Components);
 			for(UInteractionComponent* Component : Components)
 			{
-				Component->Used(this);
+				//Component->Used(this);
+				if(HasAuthority())
+				{
+					Component->Used(this);
+				}
+				else{Server_UseInteractable(Component);}
 			}
 		}
 	}
+}
+
+void APlayerCharacter::Server_UseInteractable_Implementation(UInteractionComponent* Component)
+{
+	Component->Used(this);
 }
 
 void APlayerCharacter::HandleMove(const FInputActionValue& IAVal)
