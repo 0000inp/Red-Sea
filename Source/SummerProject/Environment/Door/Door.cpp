@@ -58,12 +58,12 @@ void ADoor::OnRep_DoorToggled()
 	else{CloseDoor();}
 }
 
-void ADoor::OpenDoor()
+void ADoor::OpenDoor_Implementation()
 {
 	DoorPanel->AddWorldOffset(FVector::UpVector * 20);
 }
 
-void ADoor::CloseDoor()
+void ADoor::CloseDoor_Implementation()
 {
 	DoorPanel->AddWorldOffset(FVector::UpVector * -20);
 }

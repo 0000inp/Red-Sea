@@ -52,7 +52,9 @@ protected:
     UFUNCTION()
 	void OnRep_DoorToggled();
 	
+	UFUNCTION(BlueprintNativeEvent)
 	void OpenDoor();
+	UFUNCTION(BlueprintNativeEvent)
 	void CloseDoor();
 
 	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category="Target")

@@ -14,7 +14,10 @@ public class SummerProject : ModuleRules
 			"Engine", 
 			"InputCore" , 
 			"Networking",
-			"EnhancedInput"
+			"EnhancedInput",
+			"AIModule",
+			"GameplayTasks",
+			"NavigationSystem"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
