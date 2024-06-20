@@ -4,36 +4,35 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "InteractionComponent.generated.h"
-
-class APlayerCharacter;
-class APawn;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUsedSignature,APlayerCharacter*, Player);
+#include "HealthComponent.generated.h"
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class SUMMERPROJECT_API UInteractionComponent : public UActorComponent
+class SUMMERPROJECT_API UHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this component's properties
-	UInteractionComponent();
-	
-	UPROPERTY(BlueprintAssignable, Category = "Interaction");
-	FOnUsedSignature OnUsed;
-	
-	virtual void Used(APlayerCharacter* Player){ OnUsed.Broadcast(Player); }
-	//virtual void Drag(APawn* Pawn, FVector Effector);
+	UHealthComponent();
+
+	UPROPERTY(EditAnywhere)
+	float MaxHealthPoint = 100;
+
+	float HealthPoint;
 	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	void UpdateHealthPoint(float value);
+	
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
-};
 
+	void TakeDamage(float Damage);
+	void Heal(float HealPoint);
+	void Dead();
+};

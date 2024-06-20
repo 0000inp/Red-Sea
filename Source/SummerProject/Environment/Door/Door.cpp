@@ -43,7 +43,7 @@ void ADoor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ADoor::OnUsed(APawn* Pawn)
+void ADoor::OnUsed(APlayerCharacter* Player)
 {
 	if(HasAuthority())
 	{

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Door.generated.h"
 
+class APlayerCharacter;
 class UInteractionComponent;
 class USceneComponent;
 class UStaticMeshComponent;
@@ -44,7 +45,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION()
-	void OnUsed(APawn* Pawn);
+	void OnUsed(APlayerCharacter* Player);
 	
 	UPROPERTY(ReplicatedUsing = OnRep_DoorToggled)
     bool isOpen = false;

@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/MovementComponent.h"
+#include "SummerProject/ActorComponents/HealthComponent/HealthComponent.h"
+#include "SummerProject/ActorComponents/InventoryComponent/InventoryComponent.h"
 #include "PlayerCharacter.generated.h"
 
 
@@ -14,6 +16,7 @@ class UCameraComponent;
 class ADefaultPlayerController;
 struct FInputActionValue;
 class APlayerCharacter;
+class UAIPerceptionStimuliSourceComponent;
 
 UCLASS()
 class SUMMERPROJECT_API APlayerCharacter : public ACharacter
@@ -36,29 +39,28 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditAnywhere)
+	UCameraComponent* Camera;
+	
 	UPROPERTY()
 	UEnhancedInputComponent* EnhancedInputComponent = nullptr;
-	// UPROPERTY()
-	// ULocalPlayer* LocalPlayer = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USceneComponent* ItemPlaceholder;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UInventoryComponent> InventoryComponent = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UHealthComponent> HealthComponent = nullptr;
+
+public:
 	
 	void InteractionLineTrace(int16 TraceDistance);
-
 	UFUNCTION(Server, Reliable)
 	void Server_UseInteractable(UInteractionComponent* Component);
 	
 protected:
-
-	UPROPERTY(EditAnywhere)
-	UCameraComponent* Camera;
-	
-	//input hande function
-	void HandleMove(const FInputActionValue& IAVal);
-	void HandleLook(const FInputActionValue& IAVal);
-	void HandleJump();
-	void HandleRun();
-	void HandleUse();
-
-	
 	
 	UPROPERTY()
 	TObjectPtr<UCharacterMovementComponent> MovementComponent = nullptr;
@@ -68,4 +70,20 @@ protected:
 	
 	UPROPERTY(EditAnywhere)
 	int16 InteractionRange = 250.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UAIPerceptionStimuliSourceComponent> StimuliSourceComponent;
+	void SetupStimulusSource();
+
+	//input hande function
+	void HandleMove(const FInputActionValue& IAVal);
+	void HandleLook(const FInputActionValue& IAVal);
+	void HandleJump();
+	void HandleRun();
+	void HandleUse();
+	void HandleDropItem();
+	
+private:
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_UnlitMode();
 };

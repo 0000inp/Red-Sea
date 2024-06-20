@@ -44,6 +44,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input|Character Interaction")
 	TObjectPtr<UInputAction> ActionUse = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input|Character Interaction")
+	TObjectPtr<UInputAction> ActionDropItem = nullptr;
+
 	UPROPERTY()
 	UEnhancedInputComponent* EnhancedInputComponent = nullptr;
 

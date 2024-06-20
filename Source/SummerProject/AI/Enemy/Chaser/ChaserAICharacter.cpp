@@ -31,3 +31,8 @@ void AChaserAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+UBehaviorTree* AChaserAICharacter::GetBehaviorTree() const
+{
+	return BehaviorTree;
+}
+

@@ -3,37 +3,50 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BehaviorTree/BehaviorTreeTypes.h"
 #include "Components/ActorComponent.h"
-#include "InteractionComponent.generated.h"
+#include "InventoryComponent.generated.h"
 
-class APlayerCharacter;
-class APawn;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUsedSignature,APlayerCharacter*, Player);
-
+class AItem;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class SUMMERPROJECT_API UInteractionComponent : public UActorComponent
+class SUMMERPROJECT_API UInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this component's properties
-	UInteractionComponent();
-	
-	UPROPERTY(BlueprintAssignable, Category = "Interaction");
-	FOnUsedSignature OnUsed;
-	
-	virtual void Used(APlayerCharacter* Player){ OnUsed.Broadcast(Player); }
-	//virtual void Drag(APawn* Pawn, FVector Effector);
+	UInventoryComponent();
 	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere)
+	uint8 InvSize = 5;
+	
+	UPROPERTY()
+	AItem* Inv[5];
+	
+	uint8 HoldingIndex;
+	AItem* HoldingItem = nullptr;
+	
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
-};
 
+	void AddItem(AItem* Item, uint8 index);
+	AItem* RemoveItem(uint8 index);
+	
+	AItem* GetHoldingItem();
+	void SetHoldingItem(AItem* Item);
+
+	
+	void DropItem();
+	UFUNCTION(Server, Reliable)
+	void Server_DropItem();
+	
+	void UseItem(uint8 UseCase);
+};

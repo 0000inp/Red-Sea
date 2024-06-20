@@ -7,6 +7,8 @@
 #include "Perception/AIPerceptionTypes.h"
 #include "ChaserAICharacter.generated.h"
 
+class UBehaviorTree;
+
 UCLASS()
 class SUMMERPROJECT_API AChaserAICharacter : public ACharacter
 {
@@ -20,12 +22,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UAIPerceptionComponent* Perception;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI", meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UBehaviorTree> BehaviorTree;
 	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UBehaviorTree* GetBehaviorTree() const;
+	
 };
