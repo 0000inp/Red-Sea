@@ -36,7 +36,7 @@ public:
 	//IA Jump
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input|Character Movement")
 	TObjectPtr<UInputAction> ActionJump = nullptr;
-
+	
 	//IA Run
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input|Character Movement")
 	TObjectPtr<UInputAction> ActionRun = nullptr;

@@ -10,10 +10,15 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetArrayLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
 #include "SummerProject/ActorComponents/InteractableComponent/InteractionComponent.h"
 #include "SummerProject/Item/Item.h"
+
+#include "SummerProject/Dev/DEBUG.h"
+#include "SummerProject/Interface/SubmarineControl.h"
 
 class UInteractionComponent;
 
@@ -63,6 +68,8 @@ void APlayerCharacter::Multicast_UnlitMode_Implementation(){GetWorld()->Exec(Get
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	LookingAtInteractionComponent = InteractionLineTrace(InteractionRange);
 	
 }
 
@@ -98,18 +105,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	BIND_ACTION_IF_VALID(ActionLook, ETriggerEvent::Triggered, &APlayerCharacter::HandleLook);
 	BIND_ACTION_IF_VALID(ActionJump, ETriggerEvent::Triggered, &APlayerCharacter::HandleJump);
 	BIND_ACTION_IF_VALID(ActionRun, ETriggerEvent::Ongoing, &APlayerCharacter::HandleRun);
-	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Started, &APlayerCharacter::HandleUse);
+	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Triggered, &APlayerCharacter::HandleUse);
+	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Canceled, &APlayerCharacter::HandleStopUse);
 	BIND_ACTION_IF_VALID(ActionDropItem, ETriggerEvent::Started, &APlayerCharacter::HandleDropItem);
 	
-	//--debug
-	UE_LOG(LogTemp, Warning, TEXT("-------From %s-------"),*GetName())
-	if(DefaultPlayerController){UE_LOG(LogTemp, Warning, TEXT("Controller = %s"), *DefaultPlayerController->GetName())} else{UE_LOG(LogTemp, Warning, TEXT("No Controller"))}
-	// if(DefaultPlayerController->InputComponent){UE_LOG(LogTemp, Warning, TEXT("InputComponent = %s"), *PlayerInputComponent->GetName())} else{UE_LOG(LogTemp, Warning, TEXT("No InputComponent"))}
-	// if(LocalPlayer){UE_LOG(LogTemp, Warning, TEXT("Player = %s"), *LocalPlayer->GetName())} else{UE_LOG(LogTemp, Warning, TEXT("No LocalPlayer"))}
-	// UE_LOG(LogTemp, Warning, TEXT("--------------"))
 }
 
-void APlayerCharacter::InteractionLineTrace(int16 TraceDistance)
+UInteractionComponent* APlayerCharacter::InteractionLineTrace(int16 TraceDistance)
 {
 	FHitResult Hit;
 	FVector TraceStart = Camera->GetComponentLocation();
@@ -122,31 +124,57 @@ void APlayerCharacter::InteractionLineTrace(int16 TraceDistance)
 			Hit.GetActor()->GetComponents(Components);
 			for(UInteractionComponent* Component : Components)
 			{
-				if(HasAuthority())
-				{
-					Component->Used(this);
-				}
-				else{Server_UseInteractable(Component);}
+				return Component;
 			}
 		}
 	}
+	return nullptr;
 }
+
+void APlayerCharacter::UseInteractable(UInteractionComponent* Component)
+{
+	if(Component)
+	{
+		/*if(ISubmarineControl* Interface = Cast<ISubmarineControl>(Component->GetOwner()))
+		{
+			SubmarineControlInterface = Interface;
+			DEBUG::print("Start Control");
+		}*/
+		Component->Interact(this);
+	}
+	
+}
+
 
 void APlayerCharacter::Server_UseInteractable_Implementation(UInteractionComponent* Component)
 {
-	Component->Used(this);
+	if(Component){Component->Interact(this);}
 }
 
 void APlayerCharacter::HandleMove(const FInputActionValue& IAVal)
 {
 	const FVector2d MovementVector = IAVal.Get<FVector2d>();
-	AddMovementInput(GetActorForwardVector(), MovementVector.Y);
+	
+	if(SubmarineControlInterface)
+	{
+		SubmarineControlInterface->ControlMovement(MovementVector);
+		return;
+	}
+	
+	AddMovementInput(UKismetMathLibrary::GetForwardVector(GetControlRotation()), MovementVector.Y);
 	AddMovementInput(GetActorRightVector(), MovementVector.X);
 }
 
 void APlayerCharacter::HandleLook(const FInputActionValue& IAVal)
 {
 	const FVector2d LookVector = IAVal.Get<FVector2d>();
+	
+	if(SubmarineControlInterface)
+	{
+		SubmarineControlInterface->ControlRotation(LookVector);
+		return;
+	}
+	
 	DefaultPlayerController->AddYawInput(LookVector.X);
 	DefaultPlayerController->AddPitchInput(LookVector.Y);
 }
@@ -164,12 +192,43 @@ void APlayerCharacter::HandleRun()
 
 void APlayerCharacter::HandleUse()
 {
-	InteractionLineTrace(InteractionRange);
+	if(HasAuthority())
+	{
+		UseInteractable(LookingAtInteractionComponent);
+	}
+	else{Server_UseInteractable(LookingAtInteractionComponent);}
+	
 }
+
+void APlayerCharacter::HandleStopUse()
+{
+	DEBUG::print("HandleStopUse STOP INTERACTING");
+}
+
 
 void APlayerCharacter::HandleDropItem()
 {
 	InventoryComponent->DropItem();
+
+	if(SubmarineControlInterface){StopUseSubmarineController();  DEBUG::print("Stop Control");}
+}
+
+
+void APlayerCharacter::UseSubmarineController(ISubmarineControl* ControlInterface)
+{
+	if(SubmarineControlInterface == nullptr)
+	{
+		SubmarineControlInterface = ControlInterface;
+	}
+}
+
+void APlayerCharacter::StopUseSubmarineController()
+{
+	if(SubmarineControlInterface)
+	{
+		SubmarineControlInterface->StopBeingUse();
+		SubmarineControlInterface = nullptr;
+	}
 }
 
 

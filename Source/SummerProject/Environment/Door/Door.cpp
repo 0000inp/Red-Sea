@@ -32,7 +32,7 @@ ADoor::ADoor()
 void ADoor::BeginPlay()
 {
 	Super::BeginPlay();
-	InteractionComponent->OnUsed.AddDynamic(this, &ADoor::OnUsed);
+	InteractionComponent->onInteract.AddDynamic(this, &ADoor::OnUsed);
 	
 	MeshMID = DoorPanel->CreateDynamicMaterialInstance(0);
 }

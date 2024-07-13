@@ -22,9 +22,15 @@ public:
 	UInteractionComponent();
 	
 	UPROPERTY(BlueprintAssignable, Category = "Interaction");
-	FOnUsedSignature OnUsed;
+	FOnUsedSignature onInteract;
 	
-	virtual void Used(APlayerCharacter* Player){ OnUsed.Broadcast(Player); }
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Interaction");
+	bool HoldMode = false;
+
+	bool Holding = false;
+	
+	UFUNCTION()
+	virtual void Interact(APlayerCharacter* Player);
 	//virtual void Drag(APawn* Pawn, FVector Effector);
 	
 protected:

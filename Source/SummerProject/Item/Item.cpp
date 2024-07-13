@@ -29,7 +29,7 @@ AItem::AItem()
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
-	InteractionComponent->OnUsed.AddDynamic(this, &AItem::PickedUp);
+	InteractionComponent->onInteract.AddDynamic(this, &AItem::PickedUp);
 	SimulatePhysic(true);
 }
 

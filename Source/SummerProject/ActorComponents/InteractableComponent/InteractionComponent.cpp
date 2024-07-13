@@ -19,9 +19,6 @@ UInteractionComponent::UInteractionComponent()
 void UInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
 }
 
 
@@ -30,7 +27,11 @@ void UInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                           FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+}
 
-	// ...
+void UInteractionComponent::Interact(APlayerCharacter* Player)
+{
+	onInteract.Broadcast(Player);
 }
 

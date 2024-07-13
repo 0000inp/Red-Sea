@@ -10,6 +10,7 @@
 #include "PlayerCharacter.generated.h"
 
 
+class ISubmarineControl;
 class UInteractionComponent;
 class UCharacterMovementComponent;
 class UCameraComponent;
@@ -53,16 +54,23 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UHealthComponent> HealthComponent = nullptr;
-
-public:
 	
-	void InteractionLineTrace(int16 TraceDistance);
+	
+	
+	UInteractionComponent* InteractionLineTrace(int16 TraceDistance);
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInteractionComponent* LookingAtInteractionComponent = nullptr;
+	
+	void UseInteractable(UInteractionComponent* Component);
 	UFUNCTION(Server, Reliable)
 	void Server_UseInteractable(UInteractionComponent* Component);
 	
+	void UseSubmarineController(ISubmarineControl* ControlInterface);
+	void StopUseSubmarineController();
 protected:
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<UCharacterMovementComponent> MovementComponent = nullptr;
 	
 	UPROPERTY()
@@ -81,8 +89,10 @@ protected:
 	void HandleJump();
 	void HandleRun();
 	void HandleUse();
+	void HandleStopUse();
 	void HandleDropItem();
-	
+
+	ISubmarineControl* SubmarineControlInterface = nullptr;
 private:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_UnlitMode();
