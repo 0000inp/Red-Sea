@@ -41,7 +41,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(EditAnywhere)
-	UCameraComponent* Camera;
+	TObjectPtr<UCameraComponent> Camera;
 	
 	UPROPERTY()
 	UEnhancedInputComponent* EnhancedInputComponent = nullptr;
@@ -96,4 +96,11 @@ protected:
 private:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_UnlitMode();
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void DepleteResource(float delta);
+	
+	float MaxOxygen;
+	float Oxygen;
 };

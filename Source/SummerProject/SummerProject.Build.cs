@@ -17,7 +17,8 @@ public class SummerProject : ModuleRules
 			"EnhancedInput",
 			"AIModule",
 			"GameplayTasks",
-			"NavigationSystem"
+			"NavigationSystem",
+			"CPathfinding"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

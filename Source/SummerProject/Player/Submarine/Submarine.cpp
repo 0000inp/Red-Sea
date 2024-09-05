@@ -93,7 +93,7 @@ void ASubmarine::RotateTowardsArrow(float DeltaTime)
 	
 	
 	float AngularDistance = CapsuleQuat.AngularDistance(ArrowQuat);
-	DEBUG::print(FString::SanitizeFloat(AngularDistance));
+	//DEBUG::print(FString::SanitizeFloat(AngularDistance));
 	if(AngularDistance > 0)
 	{
 		FQuat LerpQuat = FQuat::Slerp(CapsuleQuat, ArrowQuat, DeltaTime * TurnRate);

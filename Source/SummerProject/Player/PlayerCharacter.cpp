@@ -70,6 +70,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	LookingAtInteractionComponent = InteractionLineTrace(InteractionRange);
+
+	DepleteResource(DeltaTime);
 	
 }
 
@@ -230,6 +232,12 @@ void APlayerCharacter::StopUseSubmarineController()
 		SubmarineControlInterface = nullptr;
 	}
 }
+
+void APlayerCharacter::DepleteResource(float delta)
+{
+	Oxygen -= 1  * delta;
+}
+
 
 
 
