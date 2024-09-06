@@ -94,7 +94,7 @@ private:
 	// Define constants for the Fibonacci sphere generation
 	
 	void InitializeViewDirections();
-	FVector PerformLineTracesForCollisionAvoidance(const FVector& StartLocation, float TraceDistance, FTransform FishTransform);
+	FVector PerformLineTracesForCollisionAvoidance(const FVector& StartLocation, float TraceDistance, int32 FishIndex, FTransform FishTransform);
 
 	FVector SteerToward(FVector vector, FVector Velocity);
 };
