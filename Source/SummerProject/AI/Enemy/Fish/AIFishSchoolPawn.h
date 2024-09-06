@@ -66,11 +66,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Behavior")
 	float SeparationRadius;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Behavior")
-	float CollisionAvoidanceRadius;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Behavior|Golden Sphere")
-	int32 SphereTraceDistance = 20.0f;
+	int32 CollisonAvoidanceTraceDistance = 20.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Behavior|Golden Sphere")
 	int32 NumViewDirections = 200;
@@ -96,7 +93,8 @@ private:
 
 	// Define constants for the Fibonacci sphere generation
 	
-	
 	void InitializeViewDirections();
-	void PerformLineTracesForCollisionAvoidance(const FVector& StartLocation, float TraceDistance);
+	FVector PerformLineTracesForCollisionAvoidance(const FVector& StartLocation, float TraceDistance, FTransform FishTransform);
+
+	FVector SteerToward(FVector vector, FVector Velocity);
 };
