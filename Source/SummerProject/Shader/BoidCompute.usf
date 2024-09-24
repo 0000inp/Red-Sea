@@ -1,0 +1,27 @@
+// IncrementComputeShader.usf
+
+// Shader parameters
+/*cbuffer ShaderParameters
+{
+	uint NumElements;
+}
+
+// Input buffer
+StructuredBuffer<float> InputBuffer : register(t0);
+// Output buffer
+RWStructuredBuffer<float> OutputBuffer : register(u0);
+
+// Main compute shader function
+[numthreads(64, 1, 1)]  // 64 threads per thread group
+void MainCS(uint3 DispatchThreadID : SV_DispatchThreadID)
+{
+	uint Index = DispatchThreadID.x;
+    
+	if (Index >= NumElements)
+		return;
+
+	// Read input, increment by 1, and write to output
+	float Value = InputBuffer[Index];
+	OutputBuffer[Index] = Value + 1.0f;
+}
+*/

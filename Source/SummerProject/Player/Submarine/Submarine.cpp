@@ -22,6 +22,9 @@ ASubmarine::ASubmarine()
 
 	ArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
 	ArrowComponent->SetupAttachment(CapsuleComponent);
+
+	DoorMarker = CreateDefaultSubobject<USceneComponent>(TEXT("Door Marker"));
+	DoorMarker->SetupAttachment(CapsuleComponent);
 	
 	CapsuleComponent->SetSimulatePhysics(true);
 }

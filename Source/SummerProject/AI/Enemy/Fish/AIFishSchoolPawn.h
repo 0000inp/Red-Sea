@@ -72,6 +72,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Behavior|Golden Sphere")
 	int32 NumViewDirections = 200;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Behavior|DEBUG")
+	bool DrawDebug = false;
+	
 	TArray<FVector> ViewDirections;
 
 	void InitializeFish(int32 NumberOfFish, UStaticMesh* FishMesh, UMaterialInterface* FishMaterial);
@@ -84,6 +87,7 @@ private:
 	void UpdateFishMovement(float DeltaTime);
 	
 	// Boid behaviors
+	TArray<FVector> LoopCompute(int32 FishIndex, FTransform FishTransform);
 	FVector ComputeCohesion(int32 FishIndex, FTransform FishTransform);
 	FVector ComputeAlignment(int32 FishIndex, FTransform FishTransform);
 	FVector ComputeSeparation(int32 FishIndex, FTransform FishTransform);

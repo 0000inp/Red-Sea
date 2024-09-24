@@ -18,7 +18,10 @@ public class SummerProject : ModuleRules
 			"AIModule",
 			"GameplayTasks",
 			"NavigationSystem",
-			"CPathfinding"
+			"CPathfinding",
+			"RenderCore",
+			"RHI",
+			"Renderer"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

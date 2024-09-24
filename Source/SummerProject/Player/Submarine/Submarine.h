@@ -42,6 +42,9 @@ public:
 	TObjectPtr<UCapsuleComponent> CapsuleComponent = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	TObjectPtr<USceneComponent> DoorMarker = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 	TObjectPtr<UStaticMeshComponent> Mesh = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
