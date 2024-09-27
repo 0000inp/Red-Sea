@@ -95,30 +95,30 @@ void AAIFishSchoolPawn::UpdateFishMovement(float DeltaTime)
         FVector AlignmentForce = SteerToward(ComputeAlignment(i, FishTransform), Vel) * AlignmentWeight;
         FVector SeparationForce = SteerToward(ComputeSeparation(i, FishTransform), Vel) * SeparationWeight;
         FVector CollisionAvoidanceForce = SteerToward(ComputeCollisionAvoidance(i, FishTransform), Vel) * CollisionAvoidanceWeight;*/
-
+        
         TArray<FVector> DirectionData = LoopCompute(i, FishTransform);
         
         FVector TargetForce = SteerToward(SchoolTarget - FishLocation, Vel) * TargetWeight;
         FVector CohesionForce = SteerToward(DirectionData[0], Vel)  * CohesionWeight;
         FVector AlignmentForce = SteerToward(DirectionData[1], Vel) * AlignmentWeight;
-        //FVector SeparationForce = SteerToward(DirectionData[2], Vel) * SeparationWeight;
-        FVector SeparationForce = DirectionData[2] * SeparationWeight;
-        FVector CollisionAvoidanceForce = SteerToward(ComputeCollisionAvoidance(i, FishTransform), Vel) * CollisionAvoidanceWeight;
+        FVector SeparationForce = SteerToward(DirectionData[2], Vel) * SeparationWeight;
+        //FVector SeparationForce = DirectionData[2] * SeparationWeight;
+        //FVector CollisionAvoidanceForce = SteerToward(ComputeCollisionAvoidance(i, FishTransform), Vel) * CollisionAvoidanceWeight;
         
         Accelerations[i] =  TargetForce + CohesionForce + AlignmentForce + SeparationForce; //รวม force ทั้งหมด
 
         FVector AvoidanceDirection = ComputeCollisionAvoidance(i, FishTransform);
-        /*if(!AvoidanceDirection.IsZero())
+        if(!AvoidanceDirection.IsZero())
         {
             Accelerations[i]+= SteerToward(AvoidanceDirection, Vel) * CollisionAvoidanceWeight;
         }
-        Accelerations[i] = Accelerations[i].GetClampedToMaxSize(MaxForce);*/
+        Accelerations[i] = Accelerations[i].GetClampedToMaxSize(MaxForce);
         
-        DEBUG::print("target : " + FString::SanitizeFloat(TargetForce.Size(), 3));
-        DEBUG::print("cohesion : " + FString::SanitizeFloat(CohesionForce.Size(), 3));
-        DEBUG::print("align : " + FString::SanitizeFloat(AlignmentForce.Size(), 3));
-        DEBUG::print("separate : " + FString::SanitizeFloat(SeparationForce.Size(), 3));
-        DEBUG::print("colli : " + FString::SanitizeFloat(CollisionAvoidanceForce.Size(), 3));
+        //DEBUG::print("target : " + FString::SanitizeFloat(TargetForce.Size(), 3));
+        //DEBUG::print("cohesion : " + FString::SanitizeFloat(CohesionForce.Size(), 3));
+        //DEBUG::print("align : " + FString::SanitizeFloat(AlignmentForce.Size(), 3));
+        //DEBUG::print("separate : " + FString::SanitizeFloat(SeparationForce.Size(), 3));
+        //DEBUG::print("colli : " + FString::SanitizeFloat(CollisionAvoidanceForce.Size(), 3));
         
         Velocities[i] += Accelerations[i] * DeltaTime;
         /*float speed = Velocities[i].Size();
@@ -161,9 +161,9 @@ TArray<FVector> AAIFishSchoolPawn::LoopCompute(int32 FishIndex, FTransform FishT
     Output[0] = Velocities[FishIndex].GetSafeNormal();
     Output[1] = Velocities[FishIndex].GetSafeNormal();
     Output[2] = Velocities[FishIndex].GetSafeNormal();
-
+    
     FVector FishLocation = FishTransform.GetLocation();
-
+    
     int32 NeighborCount = 0;
     //Chohesion
     FVector CenterOfMass = FVector::ZeroVector;

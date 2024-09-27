@@ -71,7 +71,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	LookingAtInteractionComponent = InteractionLineTrace(InteractionRange);
 
-	DepleteResource(DeltaTime);
+	ResourceCalculation(DeltaTime);
 	
 }
 
@@ -107,6 +107,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	BIND_ACTION_IF_VALID(ActionLook, ETriggerEvent::Triggered, &APlayerCharacter::HandleLook);
 	BIND_ACTION_IF_VALID(ActionJump, ETriggerEvent::Triggered, &APlayerCharacter::HandleJump);
 	BIND_ACTION_IF_VALID(ActionRun, ETriggerEvent::Ongoing, &APlayerCharacter::HandleRun);
+	BIND_ACTION_IF_VALID(ActionRun, ETriggerEvent::Completed, &APlayerCharacter::HandleStopRun);
 	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Triggered, &APlayerCharacter::HandleUse);
 	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Canceled, &APlayerCharacter::HandleStopUse);
 	BIND_ACTION_IF_VALID(ActionDropItem, ETriggerEvent::Started, &APlayerCharacter::HandleDropItem);
@@ -189,7 +190,13 @@ void APlayerCharacter::HandleJump()
 void APlayerCharacter::HandleRun()
 {
 	MovementComponent->MaxWalkSpeed = 1000;
-	HealthComponent->Dead();
+	bIsRunning = true;
+}
+
+void APlayerCharacter::HandleStopRun()
+{
+	MovementComponent->MaxWalkSpeed = 500;
+	bIsRunning = false;
 }
 
 void APlayerCharacter::HandleUse()
@@ -233,9 +240,23 @@ void APlayerCharacter::StopUseSubmarineController()
 	}
 }
 
-void APlayerCharacter::DepleteResource(float delta)
+void APlayerCharacter::ResourceCalculation(float DeltaTime)
 {
-	Oxygen -= 1  * delta;
+	if (bIsInWater)
+	{
+		if (bIsRunning)
+		{
+			Stamina -= 1 * StaminaDepletionRate * DeltaTime;
+		}
+		else
+		{
+			Stamina += 1 * StaminaIncreaseRate * DeltaTime;
+		}
+
+		Oxygen -= 1 * OxygenDepletionRate * /*(((MaxStamina - Stamina)/MaxStamina) * StaminaResourceDepletionScale) **/ DeltaTime;
+	}
+	
+	
 }
 
 

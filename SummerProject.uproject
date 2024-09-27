@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.1",
+	"EngineAssociation": "5.2",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -80,6 +80,10 @@
 			"Name": "CPathfinding",
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/c533ad0234c540fb81bdfa7bd55d3514"
+		},
+		{
+			"Name": "PCG",
+			"Enabled": true
 		}
 	]
 }

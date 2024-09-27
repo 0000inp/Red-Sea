@@ -88,6 +88,7 @@ protected:
 	void HandleLook(const FInputActionValue& IAVal);
 	void HandleJump();
 	void HandleRun();
+	void HandleStopRun();
 	void HandleUse();
 	void HandleStopUse();
 	void HandleDropItem();
@@ -99,8 +100,37 @@ private:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void DepleteResource(float delta);
+	void ResourceCalculation(float DeltaTime);
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Status")
+	bool bIsInWater = false;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Resource|Oxygen")
+	float MaxOxygen = 100.0f;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Resource|Oxygen")
+	float Oxygen = MaxOxygen;
 	
-	float MaxOxygen;
-	float Oxygen;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Resource|Oxygen")
+	float OxygenDepletionRate = 1.0f;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Resource|Stamina")
+	float MaxStamina = 100.0f;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Resource|Stamina")
+	float Stamina = MaxStamina;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Resource|Stamina")
+	float StaminaDepletionRate = 1.0f;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Resource|Stamina")
+	float StaminaIncreaseRate = 1.0f;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Resource|Stamina")
+	float StaminaResourceDepletionScale = 1.0f;
+
+	
+public:
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Movement")
+	bool bIsRunning = false;
 };

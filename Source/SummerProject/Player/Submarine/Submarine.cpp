@@ -84,7 +84,7 @@ void ASubmarine::TurnRight_Implementation()
 	
 }
 
-void ASubmarine::RotateTowardsArrow(float DeltaTime)
+/*void ASubmarine::RotateTowardsArrow(float DeltaTime)
 {
 	FQuat CapsuleQuat = CapsuleComponent->GetComponentQuat();
 	
@@ -103,5 +103,45 @@ void ASubmarine::RotateTowardsArrow(float DeltaTime)
 		SetActorRotation(LerpQuat);
 	}
 	
+}*/
+
+void ASubmarine::RotateTowardsArrow(float DeltaTime)
+{
+	// Get the current forward vector of the submarine (Capsule)
+	FVector CurrentForward = CapsuleComponent->GetForwardVector();
+
+	// Get the target direction from the arrow
+	FVector TargetForward = ArrowComponent->GetForwardVector();
+
+	// Zero out the Z-axis (vertical axis) to only affect the yaw (horizontal rotation)
+	CurrentForward.Z = 0.0f;
+	TargetForward.Z = 0.0f;
+
+	// Normalize the vectors to ensure proper calculations
+	CurrentForward.Normalize();
+	TargetForward.Normalize();
+
+	// Calculate the difference in yaw between the current and target directions
+	FQuat CurrentQuat = FQuat::FindBetweenVectors(FVector::ForwardVector, CurrentForward);
+	FQuat TargetQuat = FQuat::FindBetweenVectors(FVector::ForwardVector, TargetForward);
+
+	// Calculate the angular distance between the two quaternions
+	float AngularDistance = CurrentQuat.AngularDistance(TargetQuat);
+
+	if (AngularDistance > 0.1) // Check if there's a significant difference
+	{
+		// Slerp between the current and target rotation based on DeltaTime and TurnRate
+		FQuat LerpQuat = FQuat::Slerp(CurrentQuat, TargetQuat, DeltaTime * TurnRate);
+
+		// Convert the resulting quaternion to a rotator and only apply the yaw (horizontal rotation)
+		FRotator LerpRotator = LerpQuat.Rotator();
+
+		// Get the current rotation and set only the yaw
+		FRotator NewRotation = GetActorRotation();
+		NewRotation.Yaw = LerpRotator.Yaw;
+
+		// Apply the new yaw rotation to the submarine
+		SetActorRotation(NewRotation);
+	}
 }
 
