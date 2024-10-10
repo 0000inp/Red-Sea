@@ -27,8 +27,6 @@ AFishAIController::AFishAIController()
 void AFishAIController::BeginPlay()
 {
 	Super::BeginPlay();
-	if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("test"));}
-	
 }
 
 void AFishAIController::OnPossess(APawn* InPawn)
@@ -73,34 +71,14 @@ void AFishAIController::SetupPerceptionSystem()
 void AFishAIController::OnTargetDetected(AActor* Actor, FAIStimulus const Stimulus)
 {
 	
-	
-	if(auto const Subject = Cast<APlayerCharacter>(Actor))
-	{
-		Blackboard->SetValueAsBool("SeePlayer", Stimulus.WasSuccessfullySensed());
-		Blackboard->SetValueAsObject("TargetPlayer", Subject);
-
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("See"));}
-	}
-	else
-	{
-		Blackboard->SetValueAsBool("SeePlayer", false);
-		if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Not See"));}
-	}
-	
-	
-	/*if(Stimulus.Type == UAISense::GetSenseID<UAISense_Sight>())
-	{
-		if(auto const Subject = Cast<APlayerCharacter>(Actor))
-		{
-			Blackboard->SetValueAsBool("SeePlayer", Stimulus.WasSuccessfullySensed());
-		}
-	}*/
 }
 
 void AFishAIController::FindPathToTarget(FVector TargetLocation)
 {
 	auto FunctionName = GET_FUNCTION_NAME_CHECKED(AFishAIController, OnPathFound);
-	CPathVolume->FindPathAsync(this, FunctionName, FishPawn->GetActorLocation(), TargetLocation);
+	//CPathVolume->FindPathAsync(this, FunctionName, FishPawn->GetActorLocation(), TargetLocation);
+	
+	Path = CPathVolume->FindPathSynchronous(FishPawn->GetActorLocation(), TargetLocation).UserPath;
 }
 
 void AFishAIController::OnPathFound(FCPathResult& PathResult)

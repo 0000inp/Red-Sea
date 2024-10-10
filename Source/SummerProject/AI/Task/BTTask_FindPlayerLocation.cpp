@@ -18,7 +18,6 @@ EBTNodeResult::Type UBTTask_FindPlayerLocation::ExecuteTask(UBehaviorTreeCompone
 {
 	if(auto* const PlayerCharacter = Cast<APlayerCharacter>(OwnerComp.GetBlackboardComponent()->GetValueAsObject("TargetPlayer")))
 	{
-		//if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("SET PLAYER"));}
 		FVector PlayerLoc = PlayerCharacter->GetActorLocation();
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), PlayerLoc);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);

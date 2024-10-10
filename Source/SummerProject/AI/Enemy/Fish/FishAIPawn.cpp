@@ -4,6 +4,9 @@
 #include "FishAIPawn.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "SummerProject/ActorComponents/HealthComponent/HealthComponent.h"
+#include "SummerProject/Dev/DEBUG.h"
 
 
 // Sets default values
@@ -48,4 +51,56 @@ UBehaviorTree* AFishAIPawn::GetBehaviorTree() const
 {
 	return BehaviorTree;
 }
+
+void AFishAIPawn::Attack()
+{
+	FVector StartLocation = GetActorLocation();
+	FVector EndLocation = StartLocation;
+	
+	float Radius = AttackRadius;
+	TArray<FHitResult> HitResults;
+
+	FCollisionShape CollisionSphere = FCollisionShape::MakeSphere(Radius);
+	
+	bool bHit = GetWorld()->SweepMultiByChannel(
+		HitResults,
+		StartLocation,
+		EndLocation,
+		FQuat::Identity,
+		ECC_GameTraceChannel2,
+		CollisionSphere
+	);
+	
+	DrawDebugSphere(
+		GetWorld(),
+		StartLocation,
+		Radius,
+		12,                      
+		FColor::Green,
+		false,                    
+		2.0f,                     
+		0,                       
+		2.0f                      
+	);
+
+	if (bHit)
+	{
+		for (auto& Hit : HitResults)
+		{
+			AActor* HitActor = Hit.GetActor();
+			DEBUG::print(HitActor->GetName());
+			if (HitActor && HitActor != this)
+			{
+				if (UHealthComponent* HealthComponent = HitActor->FindComponentByClass<UHealthComponent>())
+				{
+					HealthComponent->TakeDamage(AttackDamage);
+				}
+			}
+		}
+	}
+	
+	// Play attack animation, sound, etc.
+	
+}
+
 

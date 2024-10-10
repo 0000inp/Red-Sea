@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Components/InstancedStaticMeshComponent.h"
+#include "SummerProject/Interface/IAIActions.h"
 #include "AIFishSchoolPawn.generated.h"
 
 UCLASS()

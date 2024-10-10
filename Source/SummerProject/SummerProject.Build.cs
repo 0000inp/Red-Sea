@@ -21,7 +21,8 @@ public class SummerProject : ModuleRules
 			"CPathfinding",
 			"RenderCore",
 			"RHI",
-			"Renderer"
+			"Renderer",
+			"UMG"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

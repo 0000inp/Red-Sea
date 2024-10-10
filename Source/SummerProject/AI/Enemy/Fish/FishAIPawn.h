@@ -6,12 +6,13 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Perception/AIPerceptionTypes.h"
+#include "SummerProject/Interface/IAIActions.h"
 #include "FishAIPawn.generated.h"
 
 class UBehaviorTree;
 
 UCLASS()
-class SUMMERPROJECT_API AFishAIPawn : public APawn
+class SUMMERPROJECT_API AFishAIPawn : public APawn, public IAIActions
 {
 	GENERATED_BODY()
 
@@ -34,6 +35,13 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Gameplay|Attack")
+	float AttackRadius = 300.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Gameplay|Attack")
+	float AttackDamage = 40.0f;
 	
 public:
 	// Called every frame
@@ -45,5 +53,9 @@ public:
 	virtual UPawnMovementComponent* GetMovementComponent() const override;
 
 	UBehaviorTree* GetBehaviorTree() const;
+
+	//Actions
+
+	virtual void Attack() override;
 	
 };

@@ -2,8 +2,11 @@
 
 #include "Submarine.h"
 
+#include <string>
+
 #include "Components/ArrowComponent.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
+#include "Interfaces/OnlineFriendsInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "SummerProject/Dev/DEBUG.h"
 
@@ -39,38 +42,36 @@ void ASubmarine::BeginPlay()
 void ASubmarine::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	Speed = FMath::Lerp(Speed, ControlSpeed, DeltaTime * Acceleration);
+	Move(DeltaTime);
 }
 
 void ASubmarine::MoveUp_Implementation()
 {
-	CapsuleComponent->AddForce({0, 0, MoveForce * MoveSpeed.Up});
+	CapsuleComponent->AddForce({0, 0, MoveForce * MoveSpeed.Up}, NAME_None, true);
 }
 
 void ASubmarine::MoveDown_Implementation()
 {
-	CapsuleComponent->AddForce({0,0,MoveForce * MoveSpeed.Down * -1});
+	CapsuleComponent->AddForce({0,0,MoveForce * MoveSpeed.Down * -1}, NAME_None, true);
 }
 
-void ASubmarine::MoveForward_Implementation(float DeltaTime)
+void ASubmarine::Move_Implementation(float DeltaTime)
 {
-	RotateTowardsArrow(DeltaTime);
-	CapsuleComponent->AddForce(CapsuleComponent->GetUpVector() * MoveForce * MoveSpeed.Forward);
+	CapsuleComponent->AddForce(CapsuleComponent->GetUpVector() * MoveForce * Speed, NAME_None, true);
 }
 
-void ASubmarine::MoveBackward_Implementation()
-{
-	CapsuleComponent->AddForce(CapsuleComponent->GetUpVector() * MoveForce * MoveSpeed.Backward * -1);
-}
 
 void ASubmarine::MoveHorizontal_Implementation(float DeltaTime)
 {
 	RotateTowardsArrow(DeltaTime);
-	CapsuleComponent->AddForce(CapsuleComponent->GetUpVector() * MoveForce * MoveValue.Horizontal);
+	CapsuleComponent->AddForce(CapsuleComponent->GetUpVector() * MoveForce * MoveValue.Horizontal, NAME_None, true);
 }
 
 void ASubmarine::MoveVertical_Implementation(float DeltaTime)
 {
-	CapsuleComponent->AddForce(CapsuleComponent->GetUpVector() * MoveForce * MoveValue.Vertical);
+	CapsuleComponent->AddForce(CapsuleComponent->GetUpVector() * MoveForce * MoveValue.Vertical, NAME_None, true);
 }
 
 void ASubmarine::TurnLeft_Implementation()

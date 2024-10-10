@@ -52,7 +52,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 	float MoveForce = 50000.0f;
-	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 	FSubmarineMovementSpeed MoveSpeed = {1, 1, 1, 1};
@@ -62,14 +61,25 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 	float TurnRate = 1.5f;
+
+	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	float ControlSpeed = 0.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	float Speed = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	float Acceleration = 0.0f;
 	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
 	
 	
-
+	
+	
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -78,9 +88,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void MoveDown();
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void MoveForward(float DeltaTime);
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void MoveBackward();
+	void Move(float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void MoveHorizontal(float DeltaTime);

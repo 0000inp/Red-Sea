@@ -9,7 +9,7 @@
 #include "SummerProject/ActorComponents/InventoryComponent/InventoryComponent.h"
 #include "PlayerCharacter.generated.h"
 
-
+class UWidgetInteractionComponent;
 class ISubmarineControl;
 class UInteractionComponent;
 class UCharacterMovementComponent;
@@ -18,6 +18,7 @@ class ADefaultPlayerController;
 struct FInputActionValue;
 class APlayerCharacter;
 class UAIPerceptionStimuliSourceComponent;
+
 
 UCLASS()
 class SUMMERPROJECT_API APlayerCharacter : public ACharacter
@@ -55,16 +56,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UHealthComponent> HealthComponent = nullptr;
 	
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UWidgetInteractionComponent> WidgetInteractionComponent = nullptr;
 	
 	UInteractionComponent* InteractionLineTrace(int16 TraceDistance);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UInteractionComponent* LookingAtInteractionComponent = nullptr;
 	
-	void UseInteractable(UInteractionComponent* Component);
+	void InteractWithInteractable(UInteractionComponent* Component, bool bIsInteract);
 	UFUNCTION(Server, Reliable)
-	void Server_UseInteractable(UInteractionComponent* Component);
+	void Server_InteractWithInteractable(UInteractionComponent* Component, bool bIsInteract);
 	
 	void UseSubmarineController(ISubmarineControl* ControlInterface);
 	void StopUseSubmarineController();
@@ -83,17 +85,39 @@ protected:
 	TObjectPtr<UAIPerceptionStimuliSourceComponent> StimuliSourceComponent;
 	void SetupStimulusSource();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement")
+	float RunSpeed = 600.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement")
+	float SwimSpeed = 400.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement|Swim")
+	float MovementSpeedAmplitude = 1.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement|Swim")
+	float MovementSpeedFrequency = 1.5f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement|Swim")
+	float FastMovementSpeedFrequency = 5.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement|Swim")
+	float NormalMovementSpeedFrequency = 1.5f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement|Swim")
+	UCurveFloat* SwimMovementCurve;
+
 	//input hande function
+	
 	void HandleMove(const FInputActionValue& IAVal);
 	void HandleLook(const FInputActionValue& IAVal);
-	void HandleJump();
-	void HandleRun();
-	void HandleStopRun();
-	void HandleUse();
-	void HandleStopUse();
-	void HandleDropItem();
-
+	void HandleJump(const FInputActionValue& IAVal);
+	void HandleRun(const FInputActionValue& IAVal);
+	void HandleUse(const FInputActionValue& IAVal);
+	void HandleDropItem(const FInputActionValue& IAVal);
+	
 	ISubmarineControl* SubmarineControlInterface = nullptr;
+
+	void InWaterMode();
+	void OutWaterMode();
 private:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_UnlitMode();
@@ -102,6 +126,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ResourceCalculation(float DeltaTime);
 
+	UPROPERTY(BlueprintReadWrite)
+	FVector2D MouseMovementInputValue = FVector2D(0,0);
+	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Status")
 	bool bIsInWater = false;
 
@@ -116,7 +143,7 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Resource|Stamina")
 	float MaxStamina = 100.0f;
-
+	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Resource|Stamina")
 	float Stamina = MaxStamina;
 	
@@ -128,9 +155,7 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Resource|Stamina")
 	float StaminaResourceDepletionScale = 1.0f;
-
 	
-public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Player Movement")
 	bool bIsRunning = false;
 };

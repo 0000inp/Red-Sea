@@ -16,10 +16,11 @@ public:
 	// Sets default values for this component's properties
 	UHealthComponent();
 
-	UPROPERTY(EditAnywhere)
-	float MaxHealthPoint = 100;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Health")
+	float MaxHealthPoint = 100.0f;
 
-	float HealthPoint;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Health")
+	float HealthPoint = MaxHealthPoint;
 	
 protected:
 	// Called when the game starts

@@ -35,3 +35,7 @@ void UInteractionComponent::Interact(APlayerCharacter* Player)
 	onInteract.Broadcast(Player);
 }
 
+void UInteractionComponent::StopInteract(APlayerCharacter* Player)
+{
+	onStopInteract.Broadcast(Player);
+}

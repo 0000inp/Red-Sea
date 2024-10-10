@@ -3,12 +3,16 @@
 
 #include "PlayerCharacter.h"
 
+#include <string>
+
 #include "DefaultPlayerController.h"
 #include "Camera/CameraComponent.h"
 
 #include "DefaultPlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "UnrealWidgetFwd.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetArrayLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -16,6 +20,8 @@
 #include "Perception/AISense_Sight.h"
 #include "SummerProject/ActorComponents/InteractableComponent/InteractionComponent.h"
 #include "SummerProject/Item/Item.h"
+#include "Components/WidgetInteractionComponent.h"
+
 
 #include "SummerProject/Dev/DEBUG.h"
 #include "SummerProject/Interface/SubmarineControl.h"
@@ -47,6 +53,11 @@ APlayerCharacter::APlayerCharacter()
 	
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+	
+	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
+	WidgetInteractionComponent->SetupAttachment(Camera);
+	
+	MovementComponent->MaxSwimSpeed = SwimSpeed;
 	
 	SetupStimulusSource();
 }
@@ -106,10 +117,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	BIND_ACTION_IF_VALID(ActionMove, ETriggerEvent::Triggered, &APlayerCharacter::HandleMove);
 	BIND_ACTION_IF_VALID(ActionLook, ETriggerEvent::Triggered, &APlayerCharacter::HandleLook);
 	BIND_ACTION_IF_VALID(ActionJump, ETriggerEvent::Triggered, &APlayerCharacter::HandleJump);
-	BIND_ACTION_IF_VALID(ActionRun, ETriggerEvent::Ongoing, &APlayerCharacter::HandleRun);
-	BIND_ACTION_IF_VALID(ActionRun, ETriggerEvent::Completed, &APlayerCharacter::HandleStopRun);
+	BIND_ACTION_IF_VALID(ActionRun, ETriggerEvent::Triggered, &APlayerCharacter::HandleRun);
 	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Triggered, &APlayerCharacter::HandleUse);
-	BIND_ACTION_IF_VALID(ActionUse, ETriggerEvent::Canceled, &APlayerCharacter::HandleStopUse);
 	BIND_ACTION_IF_VALID(ActionDropItem, ETriggerEvent::Started, &APlayerCharacter::HandleDropItem);
 	
 }
@@ -133,27 +142,7 @@ UInteractionComponent* APlayerCharacter::InteractionLineTrace(int16 TraceDistanc
 	}
 	return nullptr;
 }
-
-void APlayerCharacter::UseInteractable(UInteractionComponent* Component)
-{
-	if(Component)
-	{
-		/*if(ISubmarineControl* Interface = Cast<ISubmarineControl>(Component->GetOwner()))
-		{
-			SubmarineControlInterface = Interface;
-			DEBUG::print("Start Control");
-		}*/
-		Component->Interact(this);
-	}
-	
-}
-
-
-void APlayerCharacter::Server_UseInteractable_Implementation(UInteractionComponent* Component)
-{
-	if(Component){Component->Interact(this);}
-}
-
+/*
 void APlayerCharacter::HandleMove(const FInputActionValue& IAVal)
 {
 	const FVector2d MovementVector = IAVal.Get<FVector2d>();
@@ -166,11 +155,47 @@ void APlayerCharacter::HandleMove(const FInputActionValue& IAVal)
 	
 	AddMovementInput(UKismetMathLibrary::GetForwardVector(GetControlRotation()), MovementVector.Y);
 	AddMovementInput(GetActorRightVector(), MovementVector.X);
+}*/
+
+void APlayerCharacter::HandleMove(const FInputActionValue& IAVal)
+{
+	const FVector2D MovementVector = IAVal.Get<FVector2D>();
+
+	if (SubmarineControlInterface)
+	{
+		SubmarineControlInterface->ControlMovement(MovementVector);
+		return;
+	}
+	
+	static float TimeInMove = 0.0f;
+	TimeInMove += GetWorld()->GetDeltaSeconds();
+
+	float SpeedModifier = 1.0f;
+	if (SwimMovementCurve)
+	{
+		SpeedModifier = SwimMovementCurve->GetFloatValue(TimeInMove * MovementSpeedFrequency) * MovementSpeedAmplitude;
+		SpeedModifier = FMath::Abs(SpeedModifier);
+	}
+	
+	SpeedModifier = FMath::Clamp(SpeedModifier, 0.1f, MovementSpeedAmplitude);
+	
+	FVector ForwardDirection = UKismetMathLibrary::GetForwardVector(GetControlRotation());
+	FVector RightDirection = GetActorRightVector();
+
+	AddMovementInput(ForwardDirection, MovementVector.Y * SpeedModifier);
+	AddMovementInput(RightDirection, MovementVector.X * SpeedModifier);
+	
+	if (MovementVector.IsNearlyZero())
+	{
+		SpeedModifier = FMath::FInterpTo(SpeedModifier, 0.0f, GetWorld()->GetDeltaSeconds(), 0.5f); 
+	}
 }
+
 
 void APlayerCharacter::HandleLook(const FInputActionValue& IAVal)
 {
-	const FVector2d LookVector = IAVal.Get<FVector2d>();
+	const FVector2D LookVector = IAVal.Get<FVector2D>();
+	MouseMovementInputValue = LookVector;
 	
 	if(SubmarineControlInterface)
 	{
@@ -182,41 +207,78 @@ void APlayerCharacter::HandleLook(const FInputActionValue& IAVal)
 	DefaultPlayerController->AddPitchInput(LookVector.Y);
 }
 
-void APlayerCharacter::HandleJump()
+void APlayerCharacter::HandleJump(const FInputActionValue& IAVal)
 {
+	const bool bIsPressed = IAVal.Get<bool>();
+	FVector ForwardDirection = UKismetMathLibrary::GetForwardVector(GetControlRotation());
+	LaunchCharacter(ForwardDirection * MaxStamina,true,true);
 	Jump();
 }
 
-void APlayerCharacter::HandleRun()
+void APlayerCharacter::HandleRun(const FInputActionValue& IAVal)
 {
-	MovementComponent->MaxWalkSpeed = 1000;
-	bIsRunning = true;
-}
+	const bool bIsPressed = IAVal.Get<bool>();
 
-void APlayerCharacter::HandleStopRun()
-{
-	MovementComponent->MaxWalkSpeed = 500;
-	bIsRunning = false;
-}
-
-void APlayerCharacter::HandleUse()
-{
-	if(HasAuthority())
+	if (bIsPressed)
 	{
-		UseInteractable(LookingAtInteractionComponent);
+		MovementComponent->MaxSwimSpeed = RunSpeed;
+		MovementSpeedFrequency = FastMovementSpeedFrequency;
+		if (GetVelocity().Length() >= 350){bIsRunning = true;}
+		else{bIsRunning = false;}
 	}
-	else{Server_UseInteractable(LookingAtInteractionComponent);}
+	else
+	{
+		MovementComponent->MaxSwimSpeed = SwimSpeed;
+		MovementSpeedFrequency = NormalMovementSpeedFrequency;
+		bIsRunning = false;
+	}
 	
 }
 
-void APlayerCharacter::HandleStopUse()
+void APlayerCharacter::HandleUse(const FInputActionValue& IAVal)
 {
-	DEBUG::print("HandleStopUse STOP INTERACTING");
+	const bool bIsPressed = IAVal.Get<bool>();
+
+	if (bIsPressed){WidgetInteractionComponent->PressPointerKey(EKeys::LeftMouseButton);}
+	else{WidgetInteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);}
+	
+	if(HasAuthority())
+	{
+		InteractWithInteractable(LookingAtInteractionComponent, bIsPressed);
+	}
+	else{Server_InteractWithInteractable(LookingAtInteractionComponent, bIsPressed);}
+	
+}
+
+void APlayerCharacter::InteractWithInteractable(UInteractionComponent* Component, bool bIsInteract)
+{
+	if(Component)
+	{
+		/*if(ISubmarineControl* Interface = Cast<ISubmarineControl>(Component->GetOwner()))
+		{
+			SubmarineControlInterface = Interface;
+			DEBUG::print("Start Control");
+		}*/
+		if(bIsInteract){ Component->Interact(this); }
+		else{ Component->StopInteract(this); }
+	}
+	
 }
 
 
-void APlayerCharacter::HandleDropItem()
+void APlayerCharacter::Server_InteractWithInteractable_Implementation(UInteractionComponent* Component, bool bIsInteract)
 {
+	if(Component)
+	{
+		if(bIsInteract){ Component->Interact(this); }
+		else{ Component->StopInteract(this); }
+	}
+}
+
+void APlayerCharacter::HandleDropItem(const FInputActionValue& IAVal)
+{
+	const bool bIsPressed = IAVal.Get<bool>();
+	
 	InventoryComponent->DropItem();
 
 	if(SubmarineControlInterface){StopUseSubmarineController();  DEBUG::print("Stop Control");}
@@ -246,19 +308,29 @@ void APlayerCharacter::ResourceCalculation(float DeltaTime)
 	{
 		if (bIsRunning)
 		{
-			Stamina -= 1 * StaminaDepletionRate * DeltaTime;
+			Stamina -= StaminaDepletionRate * DeltaTime;
 		}
 		else
 		{
-			Stamina += 1 * StaminaIncreaseRate * DeltaTime;
+			Stamina += StaminaIncreaseRate * DeltaTime;
 		}
-
-		Oxygen -= 1 * OxygenDepletionRate * /*(((MaxStamina - Stamina)/MaxStamina) * StaminaResourceDepletionScale) **/ DeltaTime;
+		float StaminaEffect = 1 + ((((MaxStamina - Stamina)/MaxStamina) * StaminaResourceDepletionScale));
+		Oxygen -= OxygenDepletionRate * DeltaTime * StaminaEffect;
 	}
 	
-	
+	Stamina = FMath::Clamp(Stamina, 0.0f, MaxStamina);
+	Oxygen = FMath::Clamp(Oxygen, 0.0f, MaxOxygen);
 }
 
+void APlayerCharacter::InWaterMode()
+{
+	GetCharacterMovement()->SetMovementMode(MOVE_Swimming);
+}
+
+void APlayerCharacter::OutWaterMode()
+{
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+}
 
 
 
