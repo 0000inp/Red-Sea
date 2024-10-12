@@ -14,7 +14,7 @@ AFishAIPawn::AFishAIPawn()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
 	RootComponent = CapsuleComponent;
 	
@@ -56,6 +56,7 @@ void AFishAIPawn::Attack()
 {
 	FVector StartLocation = GetActorLocation();
 	FVector EndLocation = StartLocation;
+	//TraceStart + (Camera->GetForwardVector() * TraceDistance);
 	
 	float Radius = AttackRadius;
 	TArray<FHitResult> HitResults;

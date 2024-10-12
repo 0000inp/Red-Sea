@@ -21,6 +21,7 @@
 #include "SummerProject/ActorComponents/InteractableComponent/InteractionComponent.h"
 #include "SummerProject/Item/Item.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "GameFramework/PhysicsVolume.h"
 
 
 #include "SummerProject/Dev/DEBUG.h"
@@ -161,34 +162,44 @@ void APlayerCharacter::HandleMove(const FInputActionValue& IAVal)
 {
 	const FVector2D MovementVector = IAVal.Get<FVector2D>();
 
+	FVector ForwardDirection = UKismetMathLibrary::GetForwardVector(GetControlRotation());
+	FVector RightDirection = GetActorRightVector();
+
 	if (SubmarineControlInterface)
 	{
 		SubmarineControlInterface->ControlMovement(MovementVector);
 		return;
 	}
-	
-	static float TimeInMove = 0.0f;
-	TimeInMove += GetWorld()->GetDeltaSeconds();
 
+	const TEnumAsByte<enum EMovementMode> MovementMode = GetCharacterMovement()->MovementMode;
+	
 	float SpeedModifier = 1.0f;
-	if (SwimMovementCurve)
+	
+	if (MovementMode == EMovementMode::MOVE_Walking)
 	{
-		SpeedModifier = SwimMovementCurve->GetFloatValue(TimeInMove * MovementSpeedFrequency) * MovementSpeedAmplitude;
-		SpeedModifier = FMath::Abs(SpeedModifier);
+		SpeedModifier = 1;
+	}
+	if (MovementMode == EMovementMode::MOVE_Swimming)
+	{
+		static float TimeInMove = 0.0f;
+		TimeInMove += GetWorld()->GetDeltaSeconds();
+	
+		if (SwimMovementCurve)
+		{
+			SpeedModifier = SwimMovementCurve->GetFloatValue(TimeInMove * MovementSpeedFrequency) * MovementSpeedAmplitude;
+			SpeedModifier = FMath::Abs(SpeedModifier);
+		}
+	
+		SpeedModifier = FMath::Clamp(SpeedModifier, 0.01f, MovementSpeedAmplitude);
 	}
 	
-	SpeedModifier = FMath::Clamp(SpeedModifier, 0.1f, MovementSpeedAmplitude);
-	
-	FVector ForwardDirection = UKismetMathLibrary::GetForwardVector(GetControlRotation());
-	FVector RightDirection = GetActorRightVector();
-
 	AddMovementInput(ForwardDirection, MovementVector.Y * SpeedModifier);
 	AddMovementInput(RightDirection, MovementVector.X * SpeedModifier);
 	
-	if (MovementVector.IsNearlyZero())
+	/*if (MovementVector.IsNearlyZero())
 	{
 		SpeedModifier = FMath::FInterpTo(SpeedModifier, 0.0f, GetWorld()->GetDeltaSeconds(), 0.5f); 
-	}
+	}*/
 }
 
 
@@ -210,9 +221,19 @@ void APlayerCharacter::HandleLook(const FInputActionValue& IAVal)
 void APlayerCharacter::HandleJump(const FInputActionValue& IAVal)
 {
 	const bool bIsPressed = IAVal.Get<bool>();
-	FVector ForwardDirection = UKismetMathLibrary::GetForwardVector(GetControlRotation());
-	LaunchCharacter(ForwardDirection * MaxStamina,true,true);
-	Jump();
+
+	const TEnumAsByte<enum EMovementMode> MovementMode = GetCharacterMovement()->MovementMode;
+	
+	if (MovementMode == EMovementMode::MOVE_Walking)
+	{
+		Jump();
+	}
+	
+	if (MovementMode == EMovementMode::MOVE_Swimming)
+	{
+		FVector ForwardDirection = UKismetMathLibrary::GetForwardVector(GetControlRotation());
+		LaunchCharacter(ForwardDirection * MaxStamina,true,true);
+	}
 }
 
 void APlayerCharacter::HandleRun(const FInputActionValue& IAVal)
@@ -324,12 +345,16 @@ void APlayerCharacter::ResourceCalculation(float DeltaTime)
 
 void APlayerCharacter::InWaterMode()
 {
+	bIsInWater = true;
 	GetCharacterMovement()->SetMovementMode(MOVE_Swimming);
+	GetCharacterMovement()->GetPhysicsVolume()->bWaterVolume = true;
 }
 
 void APlayerCharacter::OutWaterMode()
 {
+	bIsInWater = false;
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	GetCharacterMovement()->GetPhysicsVolume()->bWaterVolume = false;
 }
 
 

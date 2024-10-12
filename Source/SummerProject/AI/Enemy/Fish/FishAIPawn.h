@@ -55,7 +55,8 @@ public:
 	UBehaviorTree* GetBehaviorTree() const;
 
 	//Actions
-
+	
+	UFUNCTION(BlueprintCallable, Blueprintable)
 	virtual void Attack() override;
 	
 };

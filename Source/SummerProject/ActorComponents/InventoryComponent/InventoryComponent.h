@@ -10,7 +10,7 @@
 
 class AItem;
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SUMMERPROJECT_API UInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()

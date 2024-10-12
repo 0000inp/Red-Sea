@@ -116,8 +116,11 @@ protected:
 	
 	ISubmarineControl* SubmarineControlInterface = nullptr;
 
+	UFUNCTION(BlueprintCallable)
 	void InWaterMode();
+	UFUNCTION(BlueprintCallable)
 	void OutWaterMode();
+	
 private:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_UnlitMode();

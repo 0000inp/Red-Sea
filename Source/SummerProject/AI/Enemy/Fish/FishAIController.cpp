@@ -65,7 +65,6 @@ void AFishAIController::SetupPerceptionSystem()
 		
 		GetPerceptionComponent()->ConfigureSense(*SightConfig);
 	}
-	
 }
 
 void AFishAIController::OnTargetDetected(AActor* Actor, FAIStimulus const Stimulus)
@@ -104,10 +103,8 @@ void AFishAIController::MoveTo(FVector Location, float DistanceTolerance)
 				5.0)
 		);
 		
-		//DEBUG::print("MOVETO3d");
+		FVector InputVector = (Location - ActorLocation).GetSafeNormal();
 		
-		FVector InputVector = (Location - ActorLocation);
-		InputVector.Normalize(0.0001);
 		
 		CurrentInputVector = InputVector;
 		

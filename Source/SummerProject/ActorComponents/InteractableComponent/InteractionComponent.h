@@ -13,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUsedSignature,APlayerCharacter*, 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStopUsedSignature,APlayerCharacter*, Player);
 
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SUMMERPROJECT_API UInteractionComponent : public UActorComponent
 {
 	GENERATED_BODY()
