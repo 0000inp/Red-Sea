@@ -50,6 +50,7 @@ void AFishAIController::OnPossess(APawn* InPawn)
 void AFishAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
 }
 
 void AFishAIController::SetupPerceptionSystem()
@@ -95,13 +96,13 @@ void AFishAIController::MoveTo(FVector Location, float DistanceTolerance)
 	
 	if(Distance > DistanceTolerance)
 	{
-		FishPawn->SetActorRotation(
+		/*FishPawn->SetActorRotation(
 			UKismetMathLibrary::RInterpTo(
 				FishPawn->GetActorRotation(),
 				UKismetMathLibrary::FindLookAtRotation(ActorLocation, Location),
 				0.02,
 				5.0)
-		);
+		);*/
 		
 		FVector InputVector = (Location - ActorLocation).GetSafeNormal();
 		
@@ -122,4 +123,23 @@ void AFishAIController::UpdatePath()
 {
 	FindPathToTarget(GetBlackboardComponent()->GetValueAsVector(FName(TEXT("TargetLocation"))));
 }
+
+void AFishAIController::RotateToVelocity(float DeltaTime, float RotationRate)
+{
+	FVector PawnVelocity = FishPawn->FloatingPawnMovementComponent->Velocity;
+
+	if (!PawnVelocity.IsNearlyZero())
+	{
+		FRotator TargetRotation = PawnVelocity.Rotation();
+		FRotator NewRotation = FMath::RInterpTo(
+			FishPawn->GetActorRotation(),
+			TargetRotation,
+			GetWorld()->GetDeltaSeconds(),
+			RotationRate * DeltaTime
+		);
+		
+		FishPawn->SetActorRotation(NewRotation);
+	}
+}
+
 

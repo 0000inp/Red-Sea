@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTakeDamage, float, DamageAmount);
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SUMMERPROJECT_API UHealthComponent : public UActorComponent
@@ -21,6 +22,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Health")
 	float HealthPoint = MaxHealthPoint;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Health")
+	FOnTakeDamage OnTakeDamage;
 	
 protected:
 	// Called when the game starts

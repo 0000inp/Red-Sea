@@ -30,9 +30,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 	TObjectPtr<UStaticMeshComponent> Mesh = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
-	TObjectPtr<UFloatingPawnMovement> FloatingPawnMovementComponent = nullptr;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UBehaviorTree> BehaviorTree;
 
@@ -42,6 +39,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Gameplay|Attack")
 	float AttackDamage = 40.0f;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	TObjectPtr<UFloatingPawnMovement> FloatingPawnMovementComponent = nullptr;
 	
 public:
 	// Called every frame

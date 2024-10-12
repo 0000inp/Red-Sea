@@ -27,6 +27,8 @@ void UHealthComponent::BeginPlay()
 void UHealthComponent::TakeDamage(float Damage)
 {
 	UpdateHealthPoint(-1 * Damage);
+	
+	OnTakeDamage.Broadcast(Damage);
 }
 
 void UHealthComponent::Heal(float HealPoint)

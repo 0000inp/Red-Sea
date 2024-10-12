@@ -22,7 +22,10 @@ public class SummerProject : ModuleRules
 			"RenderCore",
 			"RHI",
 			"Renderer",
-			"UMG"
+			"UMG",
+			"Http",
+			"Json",
+			"JsonUtilities"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

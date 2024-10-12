@@ -75,7 +75,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<UCharacterMovementComponent> MovementComponent = nullptr;
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<ADefaultPlayerController> DefaultPlayerController = nullptr;
 	
 	UPROPERTY(EditAnywhere)

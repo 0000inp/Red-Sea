@@ -47,6 +47,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void MoveTo(FVector Location, float DistanceTolerance = 60);
 
+	UFUNCTION(BlueprintCallable)
+	void RotateToVelocity(float DeltaTime, float RotationRate);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector CurrentInputVector;
 	
