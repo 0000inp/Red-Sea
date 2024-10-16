@@ -23,8 +23,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Health")
 	float HealthPoint = MaxHealthPoint;
 	
-	UPROPERTY(BlueprintAssignable, Category = "Health")
+	UPROPERTY(BlueprintAssignable, Category = "Damage")
 	FOnTakeDamage OnTakeDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Damage")
+	float DamageThreshold = 0.0f;
+	
 	
 protected:
 	// Called when the game starts

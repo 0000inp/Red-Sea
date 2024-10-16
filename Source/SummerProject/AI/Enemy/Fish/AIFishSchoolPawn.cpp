@@ -425,7 +425,7 @@ FVector AAIFishSchoolPawn::PerformLineTracesForCollisionAvoidance(const FVector&
     
     for (const FVector& Direction : ViewDirections)
     {
-        FVector GlobalDirection = FishTransform.TransformVector(Direction );
+        FVector GlobalDirection = FishTransform.TransformVector(Direction);
         FVector AvoidDirection = GlobalDirection;
         FVector EndLocation = StartLocation + (GlobalDirection * TraceDistance);
         

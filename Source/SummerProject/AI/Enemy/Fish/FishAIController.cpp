@@ -11,6 +11,7 @@
 #include "Perception/AISenseConfig.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISense_Hearing.h"
+#include "SummerProject/Dev/DEBUG.h"
 #include "SummerProject/Player/PlayerCharacter.h"
 
 
@@ -75,9 +76,9 @@ void AFishAIController::OnTargetDetected(AActor* Actor, FAIStimulus const Stimul
 
 void AFishAIController::FindPathToTarget(FVector TargetLocation)
 {
+	if (!CPathVolume){return;}
 	auto FunctionName = GET_FUNCTION_NAME_CHECKED(AFishAIController, OnPathFound);
 	//CPathVolume->FindPathAsync(this, FunctionName, FishPawn->GetActorLocation(), TargetLocation);
-	
 	Path = CPathVolume->FindPathSynchronous(FishPawn->GetActorLocation(), TargetLocation).UserPath;
 }
 

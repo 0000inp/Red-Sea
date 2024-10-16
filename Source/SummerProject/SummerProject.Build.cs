@@ -25,7 +25,8 @@ public class SummerProject : ModuleRules
 			"UMG",
 			"Http",
 			"Json",
-			"JsonUtilities"
+			"JsonUtilities",
+			"ProceduralMeshComponent"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

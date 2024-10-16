@@ -52,16 +52,16 @@ UBehaviorTree* AFishAIPawn::GetBehaviorTree() const
 	return BehaviorTree;
 }
 
-void AFishAIPawn::Attack()
+void AFishAIPawn::Attack_Implementation()
 {
 	FVector StartLocation = GetActorLocation();
-	FVector EndLocation = StartLocation;
+	FVector EndLocation = StartLocation + (GetActorUpVector() * AttackRange);
 	//TraceStart + (Camera->GetForwardVector() * TraceDistance);
 	
 	float Radius = AttackRadius;
 	TArray<FHitResult> HitResults;
 
-	FCollisionShape CollisionSphere = FCollisionShape::MakeSphere(Radius);
+	FCollisionShape CollisionCapsule = FCollisionShape::MakeCapsule(Radius, AttackRange/2);
 	
 	bool bHit = GetWorld()->SweepMultiByChannel(
 		HitResults,
@@ -69,7 +69,7 @@ void AFishAIPawn::Attack()
 		EndLocation,
 		FQuat::Identity,
 		ECC_GameTraceChannel2,
-		CollisionSphere
+		CollisionCapsule
 	);
 	
 	DrawDebugSphere(
@@ -99,8 +99,8 @@ void AFishAIPawn::Attack()
 			}
 		}
 	}
+
 	
-	// Play attack animation, sound, etc.
 	
 }
 

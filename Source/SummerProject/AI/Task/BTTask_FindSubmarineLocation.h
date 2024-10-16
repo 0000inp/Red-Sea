@@ -17,7 +17,11 @@ class SUMMERPROJECT_API UBTTask_FindSubmarineLocation : public UBTTask_Blackboar
 public:
 	explicit UBTTask_FindSubmarineLocation(FObjectInitializer const& ObjectInitializer);
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI", meta=(AllowPrivateAccess="true"))
-	bool getFrontLocation = false;
+	bool bGetFrontLocation = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI", meta=(AllowPrivateAccess="true"))
+	bool bGetSurfaceLocation = true;
+	
 };

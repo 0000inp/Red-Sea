@@ -9,6 +9,8 @@
 #include "SummerProject/Interface/IAIActions.h"
 #include "FishAIPawn.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttack, float, DamageAmount);
+
 class UBehaviorTree;
 
 UCLASS()
@@ -33,7 +35,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UBehaviorTree> BehaviorTree;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Gameplay|Attack")
+	float AttackRange = 300.0f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Gameplay|Attack")
 	float AttackRadius = 300.0f;
 
@@ -57,7 +61,7 @@ public:
 
 	//Actions
 	
-	UFUNCTION(BlueprintCallable, Blueprintable)
-	virtual void Attack() override;
+	UFUNCTION(BlueprintCallable, Blueprintable, BlueprintNativeEvent)
+	void Attack() override;
 	
 };

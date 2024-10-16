@@ -26,6 +26,11 @@ void UHealthComponent::BeginPlay()
 
 void UHealthComponent::TakeDamage(float Damage)
 {
+	if (Damage < DamageThreshold)
+	{
+		return;
+	}
+	
 	UpdateHealthPoint(-1 * Damage);
 	
 	OnTakeDamage.Broadcast(Damage);
@@ -39,7 +44,7 @@ void UHealthComponent::Heal(float HealPoint)
 void UHealthComponent::UpdateHealthPoint(float value)
 {
 	HealthPoint += value;
-	HealthPoint = FMath::Clamp(HealthPoint,0.0f,100.0f);
+	HealthPoint = FMath::Clamp(HealthPoint,0.0f,MaxHealthPoint);
 }
 
 void UHealthComponent::Dead()
