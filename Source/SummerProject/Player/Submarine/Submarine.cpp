@@ -17,19 +17,18 @@ ASubmarine::ASubmarine()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	
-	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Component"));
-	RootComponent = CapsuleComponent;
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SubmarineMesh"));
 	
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
-	Mesh->SetupAttachment(CapsuleComponent);
-
+	RootComponent = Mesh;
+	
+	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComponent"));
+	CapsuleComponent->SetupAttachment(Mesh);
+	
+	
 	ArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
-	ArrowComponent->SetupAttachment(CapsuleComponent);
-
-	DoorMarker = CreateDefaultSubobject<USceneComponent>(TEXT("Door Marker"));
-	DoorMarker->SetupAttachment(CapsuleComponent);
+	ArrowComponent->SetupAttachment(Mesh);
 	
-	CapsuleComponent->SetSimulatePhysics(true);
+	Mesh->SetSimulatePhysics(true);
 }
 
 // Called when the game starts or when spawned
@@ -49,29 +48,29 @@ void ASubmarine::Tick(float DeltaTime)
 
 void ASubmarine::MoveUp_Implementation()
 {
-	CapsuleComponent->AddForce({0, 0, MoveForce * MoveSpeed.Up}, NAME_None, true);
+	Mesh->AddForce({0, 0, MoveForce * MoveSpeed.Up}, NAME_None, true);
 }
 
 void ASubmarine::MoveDown_Implementation()
 {
-	CapsuleComponent->AddForce({0,0,MoveForce * MoveSpeed.Down * -1}, NAME_None, true);
+	Mesh->AddForce({0,0,MoveForce * MoveSpeed.Down * -1}, NAME_None, true);
 }
 
 void ASubmarine::Move_Implementation(float DeltaTime)
 {
-	CapsuleComponent->AddForce(CapsuleComponent->GetUpVector() * MoveForce * Speed, NAME_None, true);
+	Mesh->AddForce(Mesh->GetUpVector() * MoveForce * Speed, NAME_None, true);
 }
 
 
 void ASubmarine::MoveHorizontal_Implementation(float DeltaTime)
 {
 	RotateTowardsArrow(DeltaTime);
-	CapsuleComponent->AddForce(CapsuleComponent->GetUpVector() * MoveForce * MoveValue.Horizontal, NAME_None, true);
+	Mesh->AddForce(Mesh->GetUpVector() * MoveForce * MoveValue.Horizontal, NAME_None, true);
 }
 
 void ASubmarine::MoveVertical_Implementation(float DeltaTime)
 {
-	CapsuleComponent->AddForce(CapsuleComponent->GetUpVector() * MoveForce * MoveValue.Vertical, NAME_None, true);
+	Mesh->AddForce(Mesh->GetUpVector() * MoveForce * MoveValue.Vertical, NAME_None, true);
 }
 
 void ASubmarine::TurnLeft_Implementation()
@@ -109,7 +108,7 @@ void ASubmarine::TurnRight_Implementation()
 void ASubmarine::RotateTowardsArrow(float DeltaTime)
 {
 	// Get the current forward vector of the submarine (Capsule)
-	FVector CurrentForward = CapsuleComponent->GetForwardVector();
+	FVector CurrentForward = Mesh->GetForwardVector();
 
 	// Get the target direction from the arrow
 	FVector TargetForward = ArrowComponent->GetForwardVector();

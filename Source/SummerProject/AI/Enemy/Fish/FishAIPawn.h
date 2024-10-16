@@ -64,4 +64,7 @@ public:
 	UFUNCTION(BlueprintCallable, Blueprintable, BlueprintNativeEvent)
 	void Attack() override;
 	
+	UPROPERTY(BlueprintAssignable, Category = "Event")
+	FOnAttack OnAttack;
+	
 };

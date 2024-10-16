@@ -95,6 +95,7 @@ void AFishAIPawn::Attack_Implementation()
 				if (UHealthComponent* HealthComponent = HitActor->FindComponentByClass<UHealthComponent>())
 				{
 					HealthComponent->TakeDamage(AttackDamage);
+					OnAttack.Broadcast(AttackDamage);
 				}
 			}
 		}

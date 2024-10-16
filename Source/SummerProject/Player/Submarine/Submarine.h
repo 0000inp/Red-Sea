@@ -42,35 +42,33 @@ public:
 	TObjectPtr<UCapsuleComponent> CapsuleComponent = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
-	TObjectPtr<USceneComponent> DoorMarker = nullptr;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 	TObjectPtr<UStaticMeshComponent> Mesh = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 	TObjectPtr<UArrowComponent> ArrowComponent = nullptr;
+
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Submarine");
 	float MoveForce = 50000.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Submarine");
 	FSubmarineMovementSpeed MoveSpeed = {1, 1, 1, 1};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Submarine");
 	FMovementValue MoveValue = {0, 0};
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Submarine");
 	float TurnRate = 1.5f;
 
 	
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Submarine|Control");
 	float ControlSpeed = 0.0f;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Submarine|Control");
 	float Speed = 0.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Submarine|Control");
 	float Acceleration = 0.0f;
 	
 protected:
