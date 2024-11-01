@@ -4,10 +4,45 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
-#include "JsonObjectConverter.h"
+#include "Serialization/JsonSerializer.h"
+
+FString AGeminiAPI::ReadStringFromFile(FString FilePath, bool& bOutSuccess)
+{
+	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*FilePath))
+	{
+		bOutSuccess = false;
+		return "File does not exist";
+	}
+	FString Content = "";
+	if (!FFileHelper::LoadFileToString(Content, *FilePath))
+	{
+		bOutSuccess = false;
+		return "File could not be read";
+	}
+	bOutSuccess = true;
+	return Content;
+}
+
+TSharedPtr<FJsonObject> AGeminiAPI::ReadJSON(FString FilePath, bool& bOutSuccess)
+{
+	FString Content = ReadStringFromFile(FilePath, bOutSuccess);
+	if (!bOutSuccess){return nullptr;}
+
+	TSharedPtr<FJsonObject> JsonObject;
+	if (!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Content), JsonObject))
+	{
+		bOutSuccess = false;
+		return nullptr;
+	}
+
+	bOutSuccess = true;
+	return JsonObject;
+}
+
 
 void AGeminiAPI::SendPrompt(const FString& Prompt)
 {
+	
 	// Set up the Http request
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &AGeminiAPI::OnResponseReceived);
@@ -16,24 +51,45 @@ void AGeminiAPI::SendPrompt(const FString& Prompt)
 	Request->SetHeader("Content-Type", "application/json");
 	//Request->SetHeader("Authorization", FString::Printf(TEXT("Bearer %s"), *APIKey));
 
+	/*
 	// Create JSON request body
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+	
+	//INFO
+	TSharedPtr<FJsonObject> FactsChatPrompt = MakeShareable(new FJsonObject());
+	TArray<TSharedPtr<FJsonValue>> FactPartsArray;
+	TSharedPtr<FJsonObject> FactsPartObject = MakeShareable(new FJsonObject);
+	FactsChatPrompt->SetStringField("role", "user");
+	FactsPartObject->SetStringField("text", Facts);
+	FactPartsArray.Add(MakeShareable(new FJsonValueObject(FactsPartObject)));
+	FactsChatPrompt->SetArrayField("parts", FactPartsArray);
+
+	//model Okay
+	TSharedPtr<FJsonObject> ModelChatPrompt = MakeShareable(new FJsonObject());
+	TArray<TSharedPtr<FJsonValue>> ModelPartsArray;
+	TSharedPtr<FJsonObject> ModelPartObject = MakeShareable(new FJsonObject);
+	ModelChatPrompt->SetStringField("role", "model");
+	ModelPartObject->SetStringField("text", "Okay. give me facts and i will fact check future prompt in domain of your facts. with answer of only [True, False] no '.' ");
+	ModelPartsArray.Add(MakeShareable(new FJsonValueObject(ModelPartObject)));
+	ModelChatPrompt->SetArrayField("parts", ModelPartsArray);
     
 	// Create the "parts" object with the provided prompt text
-	TArray<TSharedPtr<FJsonValue>> PartsArray;
-	TSharedPtr<FJsonObject> PartObject = MakeShareable(new FJsonObject);
-	PartObject->SetStringField("text", Prompt);
-	PartsArray.Add(MakeShareable(new FJsonValueObject(PartObject)));
-    
+	TSharedPtr<FJsonObject> AnswerChatPrompt = MakeShareable(new FJsonObject());
+	TArray<TSharedPtr<FJsonValue>> AnswerPartsArray;
+	TSharedPtr<FJsonObject> AnswerPartObject = MakeShareable(new FJsonObject);
+	AnswerChatPrompt->SetStringField("role", "user");
+	AnswerPartObject->SetStringField("text", Prompt);
+	AnswerPartsArray.Add(MakeShareable(new FJsonValueObject(AnswerPartObject)));
+	AnswerChatPrompt->SetArrayField("parts", AnswerPartsArray);
+
 	// Add the parts array to the "contents" array
 	TArray<TSharedPtr<FJsonValue>> ContentsArray;
-	TSharedPtr<FJsonObject> ContentsObject = MakeShareable(new FJsonObject);
-	ContentsObject->SetArrayField("parts", PartsArray);
-	ContentsArray.Add(MakeShareable(new FJsonValueObject(ContentsObject)));
+	ContentsArray.Add(MakeShareable(new FJsonValueObject(FactsChatPrompt)));
+	ContentsArray.Add(MakeShareable(new FJsonValueObject(AnswerChatPrompt)));
     
 	// Add the contents array to the main JSON object
 	JsonObject->SetArrayField("contents", ContentsArray);
-
+	
 	// GenerationConfig part
 	/*TSharedPtr<FJsonObject> GenerationConfigObject = MakeShareable(new FJsonObject);
 	GenerationConfigObject->SetNumberField("temperature", Temperature);
@@ -42,9 +98,19 @@ void AGeminiAPI::SendPrompt(const FString& Prompt)
 	GenerationConfigObject->SetNumberField("maxOutputTokens", MaxOutputTokens);
 	GenerationConfigObject->SetStringField("responseMimeType", ResponseMimeType);
 	
-	JsonObject->SetObjectField("generationConfig", GenerationConfigObject);*/
+	JsonObject->SetObjectField("generationConfig", GenerationConfigObject);#1#*/
+	
 	
 	// Convert JSON to string and attach it to the request
+	bool bReadSuccess;
+	TSharedPtr<FJsonObject> JsonObject = ReadJSON(FPaths::ProjectDir() + TEXT("Source/SummerProject/Dev/PromptBody.json"), bReadSuccess);
+	DEBUG::print(bReadSuccess? "read success" : "read fail");
+	
+	TArray<TSharedPtr<FJsonValue>> ContentsArray = JsonObject->GetArrayField("contents");
+	ContentsArray[2]->AsObject()->GetArrayField("parts")[0]->AsObject()->SetStringField("text", Prompt);
+
+	DEBUG::print(ContentsArray[2]->AsObject()->GetArrayField("parts")[0]->AsObject()->GetStringField("text"));
+	
 	FString RequestBody;
     TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&RequestBody);
     FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);

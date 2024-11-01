@@ -1,0 +1,24 @@
+{
+  "contents": [
+    {
+      "role": "user",
+      "parts":[{"text": "Check if next prompt is correct about this fact : Everyone is going to heart of the planet"}]
+    },
+    {
+      "role": "model",
+      "parts":[{"text": "Understood. give me facts and i will fact check. with answer of only [True, False] no '.' "}]
+    },
+    {
+      "role": "user",
+      "parts":[{"text": "Every body go to the planet core"}]
+    }
+  ],
+
+  "generationConfig": {
+    "temperature": 1,
+    "topK": 64,
+    "topP": 0.95,
+    "maxOutputTokens": 1,
+    "responseMimeType": "text/plain"
+  }
+}

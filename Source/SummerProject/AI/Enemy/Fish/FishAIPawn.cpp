@@ -96,6 +96,7 @@ void AFishAIPawn::Attack_Implementation()
 				{
 					HealthComponent->TakeDamage(AttackDamage);
 					OnAttack.Broadcast(AttackDamage);
+					DEBUG::print("ATTACK");
 				}
 			}
 		}

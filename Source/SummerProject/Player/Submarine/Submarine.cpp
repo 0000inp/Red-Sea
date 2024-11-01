@@ -58,7 +58,7 @@ void ASubmarine::MoveDown_Implementation()
 
 void ASubmarine::Move_Implementation(float DeltaTime)
 {
-	Mesh->AddForce(Mesh->GetUpVector() * MoveForce * Speed, NAME_None, true);
+	Mesh->AddForce(Mesh->GetForwardVector() * MoveForce * Speed, NAME_None, true);
 }
 
 
@@ -70,7 +70,7 @@ void ASubmarine::MoveHorizontal_Implementation(float DeltaTime)
 
 void ASubmarine::MoveVertical_Implementation(float DeltaTime)
 {
-	Mesh->AddForce(Mesh->GetUpVector() * MoveForce * MoveValue.Vertical, NAME_None, true);
+	Mesh->AddForce(Mesh->GetForwardVector() * MoveForce * MoveValue.Vertical, NAME_None, true);
 }
 
 void ASubmarine::TurnLeft_Implementation()

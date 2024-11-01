@@ -2,6 +2,7 @@
 #include "AIFishSchoolPawn.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "SummerProject/Dev/DEBUG.h"
+#include "Math/UnrealMathUtility.h"
 
 AAIFishSchoolPawn::AAIFishSchoolPawn()
 {
@@ -35,7 +36,7 @@ void AAIFishSchoolPawn::BeginPlay()
     if (FishMesh && FishMaterial)
     {
         // Initialize the fish school with the mesh and material
-        InitializeFish(FishAmount, FishMesh, FishMaterial);  // Initialize with 100 fish
+        InitializeFish(FishAmount, FishMesh, FishMaterial);  
     }
     else
     {
@@ -382,6 +383,69 @@ FVector AAIFishSchoolPawn::ComputeCollisionAvoidance(int32 FishIndex, FTransform
     // Clamp the avoidance force to avoid erratic behavior
     //return Velocities[FishIndex].GetSafeNormal();
     //return AvoidanceForce;
+}
+
+FVector AAIFishSchoolPawn::ComputeCollisionAvoidance2(int32 FishIndex, FTransform FishTransform)
+{
+    FVector Vnext;
+    FVector StartLocation = FishTransform.GetLocation();
+    FVector EndLocation = StartLocation + (FishTransform.GetRotation().GetForwardVector() * CollisonAvoidanceTraceDistance);
+    
+    FCollisionQueryParams QueryParams;
+    QueryParams.AddIgnoredActor(this);
+    QueryParams.AddIgnoredComponent(InstancedMeshComponent);
+    FHitResult HitResult;
+
+    if (!GetWorld()){return FVector::ZeroVector;}
+    
+    bool bHit = GetWorld()->LineTraceSingleByChannel(
+        HitResult,
+        StartLocation,
+        EndLocation,
+        ECC_Visibility,  // Use appropriate collision channel
+        QueryParams
+    );
+    
+
+    if (bHit)
+    {
+        float w = 5/HitResult.Distance;
+        FVector V = FishTransform.GetRotation().GetForwardVector();
+        FVector AvoidVector = (HitResult.Location - StartLocation).GetSafeNormal();
+        DEBUG::print("V = " + V.ToString());
+        DEBUG::print("AvoidVec = " + AvoidVector.ToString());
+        float costheta = FVector::DotProduct(V, AvoidVector) / FVector::Distance(V, AvoidVector);
+        DEBUG::print("CosTheta = " + FString::SanitizeFloat(costheta));
+        if (costheta < PI)
+        {
+            float theta = w * costheta;
+            Vnext.X =  FMath::Cos(theta) * V.X + 0 + FMath::Sin(theta) * V.Z;
+            Vnext.Y = V.Y;
+            Vnext.Z =  (-1 * FMath::Sin(theta) * V.X) + 0 + FMath::Cos(theta) * V.Z;
+        }
+        else{ Vnext = FVector::ZeroVector; }
+        DEBUG::print("Vnext = " + Vnext.ToString());
+        
+        FVector e = StartLocation + (Vnext * 100);
+
+        if (GetWorld() && true)
+        {
+            // Draw the debug point at the specified location
+            DrawDebugLine(
+                GetWorld(),
+                StartLocation,
+                e,         // Location of the point
+                FColor::Turquoise,            // Color of the point
+                false,            // Persistent lines (false means they will disappear after 'Duration')
+                0.1,
+                0,
+                bHit ? 0 : 0.3
+            );
+        }
+    }
+    
+    return Vnext;
+    
 }
 
 

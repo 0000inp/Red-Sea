@@ -259,7 +259,7 @@ void APlayerCharacter::HandleRun(const FInputActionValue& IAVal)
 void APlayerCharacter::HandleUse(const FInputActionValue& IAVal)
 {
 	const bool bIsPressed = IAVal.Get<bool>();
-
+	
 	if (bIsPressed){WidgetInteractionComponent->PressPointerKey(EKeys::LeftMouseButton);}
 	else{WidgetInteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);}
 	

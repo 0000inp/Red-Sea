@@ -93,6 +93,7 @@ private:
 	FVector ComputeAlignment(int32 FishIndex, FTransform FishTransform);
 	FVector ComputeSeparation(int32 FishIndex, FTransform FishTransform);
 	FVector ComputeCollisionAvoidance(int32 FishIndex, FTransform FishTransform);
+	FVector ComputeCollisionAvoidance2(int32 FishIndex, FTransform FishTransform);
 	FVector Seek(const FVector& TargetLocation, int32 FishIndex, FTransform FishTransform);
 
 
