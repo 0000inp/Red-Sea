@@ -24,8 +24,8 @@ void ADefaultPlayerController::OnPossess(APawn* aPawn)
 	Super::OnPossess(aPawn);
 	
 	//store ref to player char if possesing pawn in player character
-	Avatar = Cast<APlayerCharacter>(aPawn);
-	checkf(Avatar, TEXT("Need to possess APlayerCharacter type"));
+	//Avatar = Cast<APlayerCharacter>(aPawn);
+	//checkf(Avatar, TEXT("Need to possess APlayerCharacter type"));
 	
 }
 
