@@ -1,2 +1,2 @@
 # SummerProject
- game project
+Submarine Horror game project
