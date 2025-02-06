@@ -12,7 +12,8 @@ AAIFishSchoolPawn::AAIFishSchoolPawn()
     InstancedMeshComponent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("InstancedMeshComponent"));
     InstancedMeshComponent->bUseDefaultCollision = false;
     RootComponent = InstancedMeshComponent;
-    
+
+    //Init variable
     FishAmount = 10;
     
     MaxSpeed = 300.0f;
@@ -35,20 +36,19 @@ void AAIFishSchoolPawn::BeginPlay()
     
     if (FishMesh && FishMaterial)
     {
-        // Initialize the fish school with the mesh and material
+        // Init fish school with the mesh and material
         InitializeFish(FishAmount, FishMesh, FishMaterial);  
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT("Failed to load Fish Mesh or Material!"));
-        
+        UE_LOG(LogTemp, Warning, TEXT("Failed to load Fish Mesh or Material"));
     }
 }
 
 void AAIFishSchoolPawn::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
+    
     // Update fish movement
     UpdateFishMovement(DeltaTime);
 }
@@ -58,15 +58,15 @@ void AAIFishSchoolPawn::InitializeFish(int32 NumberOfFish, UStaticMesh* Mesh, UM
     InstancedMeshComponent->SetStaticMesh(Mesh);
     InstancedMeshComponent->SetMaterial(0, Material);
     
+    //loop for each fish
     for (int32 i = 0; i < NumberOfFish; ++i)
     {
         FTransform InstanceTransform;
-        InstanceTransform.SetLocation(UKismetMathLibrary::RandomUnitVector() * 500.0f);
+        InstanceTransform.SetLocation(UKismetMathLibrary::RandomUnitVector() * FishSpawnRadius);  //spawn fish in random direction in radius
         InstanceTransform.SetRotation(FQuat::Identity);
         InstanceTransform.SetScale3D(FVector(1.0f));
         
         InstancedMeshComponent->AddInstance(InstanceTransform);
-        //Velocities.Add(UKismetMathLibrary::RandomUnitVector());
         Velocities.Add(FVector::ZeroVector);
         Accelerations.Add(FVector::ZeroVector);
     }
@@ -75,8 +75,8 @@ void AAIFishSchoolPawn::InitializeFish(int32 NumberOfFish, UStaticMesh* Mesh, UM
 void AAIFishSchoolPawn::UpdateFishMovement(float DeltaTime)
 {
     FVector SchoolTarget;
-    if(TargetActor){SchoolTarget = TargetActor->GetActorLocation();}
-    else{SchoolTarget = GetActorLocation();  /*The fish should follow this pawn's location*/}
+    if(TargetActor){SchoolTarget = TargetActor->GetActorLocation();} //location of target actor
+    else{SchoolTarget = GetActorLocation();} //if no target actor swim around in self area
     
     for (int32 i = 0; i < InstancedMeshComponent->GetInstanceCount(); ++i)
     {
@@ -85,29 +85,15 @@ void AAIFishSchoolPawn::UpdateFishMovement(float DeltaTime)
         FVector FishLocation = FishTransform.GetLocation();
         FVector Vel = Velocities[i];
         
-        /*FVector TargetForce = Seek(SchoolTarget, i, FishTransform) * TargetWeight;
-        FVector CohesionForce = ComputeCohesion(i, FishTransform) * CohesionWeight;
-        FVector AlignmentForce = ComputeAlignment(i, FishTransform) * AlignmentWeight;
-        FVector SeparationForce = ComputeSeparation(i, FishTransform) * SeparationWeight;
-        FVector CollisionAvoidanceForce = ComputeCollisionAvoidance(i, FishTransform) * CollisionAvoidanceWeight;*/
-        
-        /*FVector TargetForce = SteerToward(SchoolTarget - FishLocation, Vel) * TargetWeight;
-        FVector CohesionForce = SteerToward(ComputeCohesion(i, FishTransform), Vel)  * CohesionWeight;
-        FVector AlignmentForce = SteerToward(ComputeAlignment(i, FishTransform), Vel) * AlignmentWeight;
-        FVector SeparationForce = SteerToward(ComputeSeparation(i, FishTransform), Vel) * SeparationWeight;
-        FVector CollisionAvoidanceForce = SteerToward(ComputeCollisionAvoidance(i, FishTransform), Vel) * CollisionAvoidanceWeight;*/
-        
         TArray<FVector> DirectionData = LoopCompute(i, FishTransform);
         
         FVector TargetForce = SteerToward(SchoolTarget - FishLocation, Vel) * TargetWeight;
         FVector CohesionForce = SteerToward(DirectionData[0], Vel)  * CohesionWeight;
         FVector AlignmentForce = SteerToward(DirectionData[1], Vel) * AlignmentWeight;
         FVector SeparationForce = SteerToward(DirectionData[2], Vel) * SeparationWeight;
-        //FVector SeparationForce = DirectionData[2] * SeparationWeight;
-        //FVector CollisionAvoidanceForce = SteerToward(ComputeCollisionAvoidance(i, FishTransform), Vel) * CollisionAvoidanceWeight;
         
         Accelerations[i] =  TargetForce + CohesionForce + AlignmentForce + SeparationForce; //รวม force ทั้งหมด
-
+        
         FVector AvoidanceDirection = ComputeCollisionAvoidance(i, FishTransform);
         if(!AvoidanceDirection.IsZero())
         {
@@ -115,17 +101,7 @@ void AAIFishSchoolPawn::UpdateFishMovement(float DeltaTime)
         }
         Accelerations[i] = Accelerations[i].GetClampedToMaxSize(MaxForce);
         
-        //DEBUG::print("target : " + FString::SanitizeFloat(TargetForce.Size(), 3));
-        //DEBUG::print("cohesion : " + FString::SanitizeFloat(CohesionForce.Size(), 3));
-        //DEBUG::print("align : " + FString::SanitizeFloat(AlignmentForce.Size(), 3));
-        //DEBUG::print("separate : " + FString::SanitizeFloat(SeparationForce.Size(), 3));
-        //DEBUG::print("colli : " + FString::SanitizeFloat(CollisionAvoidanceForce.Size(), 3));
-        
         Velocities[i] += Accelerations[i] * DeltaTime;
-        /*float speed = Velocities[i].Size();
-        FVector dir = Velocities[i] / speed;
-        speed =  UKismetMathLibrary::Clamp(speed, 0.0f, MaxSpeed);
-        Velocities[i] = dir * speed;*/
         Velocities[i] = Velocities[i].GetClampedToMaxSize(MaxSpeed);
         
         FVector NewLocation = FishLocation + Velocities[i] * DeltaTime;
@@ -137,16 +113,16 @@ void AAIFishSchoolPawn::UpdateFishMovement(float DeltaTime)
 
         if(DrawDebug)
         {
-            FVector EndLocation = FishLocation + (Velocities[i] * 15.0f);  // Scale the velocity for visualization purposes
+            FVector EndLocation = FishLocation + (Velocities[i] * 15.0f);
             DrawDebugLine(
-                GetWorld(),               // The world context
-                FishLocation,          // Start location
-                EndLocation,              // End location
-                FColor::Yellow,              // Line color
-                false,                    // Persistent lines (set to false for one frame, true for persistent lines)
-                -1.0f,                    // Lifetime of the line (-1 for persistent if 'bPersistentLines' is true)
-                0,                        // Depth priority (0 is fine)
-                2.0f                      // Line thickness
+                GetWorld(),       
+                FishLocation,      
+                EndLocation,
+                FColor::Yellow,
+                false,
+                -1.0f,
+                0,
+                2.0f
             );
         }
         
@@ -157,6 +133,7 @@ void AAIFishSchoolPawn::UpdateFishMovement(float DeltaTime)
 
 TArray<FVector> AAIFishSchoolPawn::LoopCompute(int32 FishIndex, FTransform FishTransform)
 {
+    //FishIndex = current fish index 
     TArray<FVector> Output;
     Output.SetNum(4);
     Output[0] = Velocities[FishIndex].GetSafeNormal();
@@ -173,8 +150,9 @@ TArray<FVector> AAIFishSchoolPawn::LoopCompute(int32 FishIndex, FTransform FishT
     //Separation
     int32 SeparationNeighborCount = 0;
     FVector SeparationForce = FVector::ZeroVector;
-    
-    for (int32 j = 0; j < InstancedMeshComponent->GetInstanceCount(); ++j)
+
+    //count fish in NeighborRadius and SeparationRadius
+    for (int32 j = 0; j < InstancedMeshComponent->GetInstanceCount(); ++j) 
     {
         if (j != FishIndex)
         {
@@ -196,28 +174,27 @@ TArray<FVector> AAIFishSchoolPawn::LoopCompute(int32 FishIndex, FTransform FishT
             }
         }
     }
-    //DEBUG::print("N : " + FString::SanitizeFloat(NeighborCount));
-    //DEBUG::print("SN : " + FString::SanitizeFloat(SeparationNeighborCount));
-    if (NeighborCount > 0)
+    
+    if (NeighborCount > 0) //if there are other fish NeighborRadius compute mass center and average direction
     {
         CenterOfMass /= NeighborCount;
         AverageDirection /= NeighborCount;
-        Output[0] = CenterOfMass - FishLocation.GetSafeNormal();
-        Output[1] = AverageDirection.GetSafeNormal();
+        Output[0] = CenterOfMass - FishLocation.GetSafeNormal(); //output direction to center off mass
+        Output[1] = AverageDirection.GetSafeNormal(); //output average direction
     }
-    else
+    else //if no fish in radius output current direction
     {
         Output[0] = Velocities[FishIndex].GetSafeNormal();
         Output[1] = Velocities[FishIndex].GetSafeNormal();
     }
     
-    if (SeparationNeighborCount > 0)
+    if (SeparationNeighborCount > 0) //if there are other fish in SeperationRadius radius compute mass center and average direction
     {
         SeparationForce /= NeighborCount;
 
-        Output[2] = SeparationForce.GetClampedToMaxSize(MaxForce);
+        Output[2] = SeparationForce.GetClampedToMaxSize(MaxForce); //output seperation force
     }
-    else
+    else //if no fish in radius output 0 vector (no force)
     {
         Output[2] = FVector::ZeroVector;
     }
@@ -342,19 +319,20 @@ FVector AAIFishSchoolPawn::ComputeCollisionAvoidance(int32 FishIndex, FTransform
     FVector EndLocation = FishLocation + (Velocities[FishIndex].GetSafeNormal() * CollisonAvoidanceTraceDistance);
     FVector AvoidanceForce = FVector::ZeroVector;
     
-    // Perform a sphere overlap check to detect nearby obstacles
+    // perform a sphere overlap check to detect nearby obstacles
     TArray<FOverlapResult> OverlapResults;
     FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(this);  // Ignore the owning pawn (self)
+    QueryParams.AddIgnoredActor(this);  // ignore the owning pawn (self)
     QueryParams.AddIgnoredComponent(InstancedMeshComponent); //ignore all mesh instance
-    
+
+    //line trace to check if there is collision in front
     FHitResult CollisionCheckHitResult;
     
     bool bHit = GetWorld()->LineTraceSingleByChannel(
         CollisionCheckHitResult,
         FishLocation,
         EndLocation,
-        ECC_Visibility,  // Use appropriate collision channel
+        ECC_Visibility,
         QueryParams
     );
 
@@ -365,8 +343,8 @@ FVector AAIFishSchoolPawn::ComputeCollisionAvoidance(int32 FishIndex, FTransform
             GetWorld(),
             FishLocation,
             EndLocation,        
-            bHit ? FColor::Red : FColor::Green,            // Color of the point
-            false,            // Persistent lines (false means they will disappear after 'Duration')
+            bHit ? FColor::Red : FColor::Green,
+            false,
             0.1f
         );    
     }
@@ -374,15 +352,10 @@ FVector AAIFishSchoolPawn::ComputeCollisionAvoidance(int32 FishIndex, FTransform
     
     if(bHit)
     {
-        return PerformLineTracesForCollisionAvoidance(FishLocation, CollisonAvoidanceTraceDistance, FishIndex, FishTransform);
-        //FVector AvoidDirection = PerformLineTracesForCollisionAvoidance(FishLocation, CollisonAvoidanceTraceDistance, FishIndex, FishTransform); 
-        //AvoidanceForce = SteerToward(AvoidDirection, Velocities[FishIndex]);
+        return PerformLineTracesForCollisionAvoidance(FishLocation, CollisonAvoidanceTraceDistance, FishIndex, FishTransform); //cone line trace in front of fish to find right direction
     }
     
-    return FVector::ZeroVector;
-    // Clamp the avoidance force to avoid erratic behavior
-    //return Velocities[FishIndex].GetSafeNormal();
-    //return AvoidanceForce;
+    return FVector::ZeroVector; //if not hit don't return force
 }
 
 FVector AAIFishSchoolPawn::ComputeCollisionAvoidance2(int32 FishIndex, FTransform FishTransform)
@@ -450,6 +423,7 @@ FVector AAIFishSchoolPawn::ComputeCollisionAvoidance2(int32 FishIndex, FTransfor
 
 
 // Method to initialize view directions using the Fibonacci Sphere method
+//get directions of the line to line trace in cone shape
 void AAIFishSchoolPawn::InitializeViewDirections()
 {
     ViewDirections.SetNum(NumViewDirections);
@@ -480,47 +454,46 @@ FVector AAIFishSchoolPawn::PerformLineTracesForCollisionAvoidance(const FVector&
     
     if (ViewDirections.Num() == 0)
     {
-        InitializeViewDirections();
+        InitializeViewDirections(); //get directions of the line to line trace in cone shape
     }
     
     FCollisionQueryParams QueryParams;
     QueryParams.AddIgnoredActor(this);  // Ignore the current actor (self)
     QueryParams.AddIgnoredComponent(InstancedMeshComponent);
     
-    for (const FVector& Direction : ViewDirections)
+    for (const FVector& Direction : ViewDirections) //for each direction do line trace
     {
         FVector GlobalDirection = FishTransform.TransformVector(Direction);
         FVector AvoidDirection = GlobalDirection;
         FVector EndLocation = StartLocation + (GlobalDirection * TraceDistance);
         
         FHitResult HitResult;
-        // Perform the line trace
+        // perform line trace
         bool bHit = GetWorld()->LineTraceSingleByChannel(
             HitResult,
             StartLocation,
             EndLocation,
-            ECC_Visibility,  // Use appropriate collision channel
+            ECC_Visibility,
             QueryParams
         );
         
-
-        // Draw debug line for visualization
+        
+        // draw debug
         if (GetWorld() && DrawDebug)
         {
-            // Draw the debug point at the specified location
             DrawDebugLine(
                 GetWorld(),
                 StartLocation,
-                EndLocation,         // Location of the point
-                bHit ? FColor::Blue : FColor::Cyan,            // Color of the point
-                false,            // Persistent lines (false means they will disappear after 'Duration')
+                EndLocation,
+                bHit ? FColor::Blue : FColor::Cyan,
+                false,
                 0.1,
                 0,
                 bHit ? 0 : 0.3
             );
         }
 
-        if (!bHit)
+        if (!bHit) //if the line doesn't hit return that direction as direction to avoid collision
         {
             return AvoidDirection;
         }

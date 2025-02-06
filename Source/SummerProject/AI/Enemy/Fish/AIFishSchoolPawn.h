@@ -34,12 +34,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AActor* TargetActor;
-
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float FishSpawnRadius = 500.0f;
+	
 	// Boid behavior parameters
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Behavior")
 	float FishAmount;
 	
-	// Movement parameters
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Behavior")
 	float MaxSpeed;
 
@@ -68,13 +70,13 @@ public:
 	float SeparationRadius;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Behavior|Golden Sphere")
-	int32 CollisonAvoidanceTraceDistance = 20.0f;
+	int32 CollisonAvoidanceTraceDistance = 20.0f; //distance to collision for fish to start avoid collision
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Behavior|Golden Sphere")
-	int32 NumViewDirections = 200;
+	int32 NumViewDirections = 200; //direction of line trace for collision avoidance
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boid Behavior|DEBUG")
-	bool DrawDebug = false;
+	bool DrawDebug = false; //should draw fish direction debug
 	
 	TArray<FVector> ViewDirections;
 
