@@ -68,8 +68,6 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_InteractWithInteractable(UInteractionComponent* Component, bool bIsInteract);
 	
-	void UseSubmarineController(ISubmarineControl* ControlInterface);
-	void StopUseSubmarineController();
 protected:
 	
 	UPROPERTY(BlueprintReadWrite)
@@ -113,8 +111,6 @@ protected:
 	void HandleRun(const FInputActionValue& IAVal);
 	void HandleUse(const FInputActionValue& IAVal);
 	void HandleDropItem(const FInputActionValue& IAVal);
-	
-	ISubmarineControl* SubmarineControlInterface = nullptr;
 
 	UFUNCTION(BlueprintCallable)
 	void InWaterMode();
@@ -128,7 +124,7 @@ private:
 public:
 	UFUNCTION(BlueprintCallable)
 	void ResourceCalculation(float DeltaTime);
-
+	
 	UPROPERTY(BlueprintReadWrite)
 	FVector2D MouseMovementInputValue = FVector2D(0,0);
 	

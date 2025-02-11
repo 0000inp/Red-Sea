@@ -165,12 +165,6 @@ void APlayerCharacter::HandleMove(const FInputActionValue& IAVal)
 	FVector ForwardDirection = UKismetMathLibrary::GetForwardVector(GetControlRotation());
 	FVector RightDirection = GetActorRightVector();
 
-	if (SubmarineControlInterface)
-	{
-		SubmarineControlInterface->ControlMovement(MovementVector);
-		return;
-	}
-
 	const TEnumAsByte<enum EMovementMode> MovementMode = GetCharacterMovement()->MovementMode;
 	
 	float SpeedModifier = 1.0f;
@@ -207,12 +201,6 @@ void APlayerCharacter::HandleLook(const FInputActionValue& IAVal)
 {
 	const FVector2D LookVector = IAVal.Get<FVector2D>();
 	MouseMovementInputValue = LookVector;
-	
-	if(SubmarineControlInterface)
-	{
-		SubmarineControlInterface->ControlRotation(LookVector);
-		return;
-	}
 	
 	DefaultPlayerController->AddYawInput(LookVector.X);
 	DefaultPlayerController->AddPitchInput(LookVector.Y);
@@ -275,11 +263,6 @@ void APlayerCharacter::InteractWithInteractable(UInteractionComponent* Component
 {
 	if(Component)
 	{
-		/*if(ISubmarineControl* Interface = Cast<ISubmarineControl>(Component->GetOwner()))
-		{
-			SubmarineControlInterface = Interface;
-			DEBUG::print("Start Control");
-		}*/
 		if(bIsInteract){ Component->Interact(this); }
 		else{ Component->StopInteract(this); }
 	}
@@ -301,26 +284,6 @@ void APlayerCharacter::HandleDropItem(const FInputActionValue& IAVal)
 	const bool bIsPressed = IAVal.Get<bool>();
 	
 	InventoryComponent->DropItem();
-
-	if(SubmarineControlInterface){StopUseSubmarineController();  DEBUG::print("Stop Control");}
-}
-
-
-void APlayerCharacter::UseSubmarineController(ISubmarineControl* ControlInterface)
-{
-	if(SubmarineControlInterface == nullptr)
-	{
-		SubmarineControlInterface = ControlInterface;
-	}
-}
-
-void APlayerCharacter::StopUseSubmarineController()
-{
-	if(SubmarineControlInterface)
-	{
-		SubmarineControlInterface->StopBeingUse();
-		SubmarineControlInterface = nullptr;
-	}
 }
 
 void APlayerCharacter::ResourceCalculation(float DeltaTime)
